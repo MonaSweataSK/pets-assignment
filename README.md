@@ -1,73 +1,32 @@
-# React + TypeScript + Vite
+=>Third pary packages
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+react-router-dom - to navigate to baout page and to each pet page
+styled-components
 
-Currently, two official plugins are available:
+=>Interfaces
+ Pet - to define the structure of pet object returned by the API - https://eulerity-hackathon.appspot.com/pets
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+ =>API Layer
+  to define the logic of fetch API call
 
-## React Compiler
+=>Custom hooks
+  1) usePets - to fetch and handle and the states (loading, error...) of the pets API
+  2) useInfiniteScroll - we use this over pagination for seamless scroll and for better UX for mobile devices too.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+=>Global state
+  the image selection must be kept in global state as it should persists across pages. 
+  So,we use React's Context API for this
+   (context api over external libs like redux or zustand as we need to store only selection for this app. need not go for a huge lib just for this case )
 
-## Expanding the ESLint configuration
+=>Routing
+  react-router-dom for this case
+  3 routes
+   - About
+   - Home
+   - Pet Details
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+=>utils
+  -filter
+  -sort
+  -download
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
