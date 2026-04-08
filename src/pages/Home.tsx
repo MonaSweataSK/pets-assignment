@@ -141,14 +141,16 @@ const Home: React.FC = () => {
                     onSortChange={setSortOrder}
                 />
                 
-                <SelectionToolbar 
-                    selectedCount={selectedUrls.size}
-                    totalSize={totalSize}
-                    onSelectAll={handleSelectAll}
-                    onClearAll={clearAll}
-                    onDownload={handleDownload}
-                    isDownloading={isDownloading}
-                />
+                {selectedUrls.size > 0 && (
+                    <SelectionToolbar 
+                        selectedCount={selectedUrls.size}
+                        totalSize={totalSize}
+                        onSelectAll={handleSelectAll}
+                        onClearAll={clearAll}
+                        onDownload={handleDownload}
+                        isDownloading={isDownloading}
+                    />
+                )}
 
                 {loading ? (
                     <LoadingOverlay>
