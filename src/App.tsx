@@ -4,21 +4,26 @@ import { theme } from './theme';
 import Home from './pages/Home';
 import About from './pages/About';
 import PetDetail from './pages/PetDetail';
+import DesignSystem from './pages/DesignSystem';
 import { SelectionProvider } from './context/SelectionContext';
+import { ToastProvider } from './ui/Toast/Toast';
 import './App.css';
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <SelectionProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/pet/:id" element={<PetDetail />} />
-          </Routes>
-        </Router>
-      </SelectionProvider>
+      <ToastProvider>
+        <SelectionProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/pet/:id" element={<PetDetail />} />
+              <Route path="/design-system" element={<DesignSystem />} />
+            </Routes>
+          </Router>
+        </SelectionProvider>
+      </ToastProvider>
     </ThemeProvider>
   );
 }
