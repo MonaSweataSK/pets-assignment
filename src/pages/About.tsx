@@ -3,33 +3,7 @@ import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
 
 // ─── Design System Types ──────────────────────────────────────────────────────
 
-declare module 'styled-components' {
-  export interface DefaultTheme {
-    colors: {
-      surface: string;
-      container: string;
-      lowest: string;
-      primary: string;
-      primaryContainer: string;
-      onSurface: string;
-      onSurfaceVariant: string;
-      outline: string;
-      border: string;
-    };
-    typography: {
-      heading: string;
-      sans: string;
-    };
-    shadows: {
-      soft: string;
-      medium: string;
-    };
-    radius: {
-      lg: string;
-      md: string;
-    };
-  }
-}
+// Type declaration removed; now managed globally in theme.ts
 
 // ─── Design System Theme ──────────────────────────────────────────────────────
 
@@ -52,10 +26,12 @@ const theme = {
   shadows: {
     soft: '0 12px 32px rgba(140, 113, 104, 0.04)',
     medium: '0 12px 32px rgba(140, 113, 104, 0.08)',
+    elevated: '0 20px 48px rgba(140, 113, 104, 0.12)',
   },
   radius: {
     lg: '24px',
-    md: '8px',
+    md: '12px',
+    sm: '8px',
   }
 };
 

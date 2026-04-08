@@ -1,4 +1,4 @@
-import { createContext, useReducer } from 'react';
+import React, { createContext, useReducer, useContext } from 'react';
 import type { ReactNode } from 'react';
 import type { Pet } from '../types/Pet';
 
@@ -79,3 +79,10 @@ export const SelectionProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+export const useSelection = () => {
+  const context = useContext(SelectionContext);
+  if (!context) {
+    throw new Error('useSelection must be used within a SelectionProvider');
+  }
+  return context;
+};
