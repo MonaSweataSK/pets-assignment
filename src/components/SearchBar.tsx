@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Dropdown } from '../ui/Dropdown/Dropdown';
 
 interface SearchBarProps {
   searchTerm: string;
@@ -71,31 +72,12 @@ const SortWrapper = styled.div`
   color: ${props => props.theme.colors.onSurfaceVariant};
 `;
 
-const SortSelect = styled.select`
-  appearance: none;
-  padding: 8px 36px 8px 16px;
-  background-color: ${props => props.theme.colors.surface};
-  border: 1px solid ${props => props.theme.colors.border};
-  border-radius: ${props => props.theme.radius.md};
-  font-weight: 600;
-  cursor: pointer;
-  color: ${props => props.theme.colors.onSurface};
-  font-family: inherit;
-  font-size: 14px;
-  position: relative;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238c7168' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-
-  &:hover {
-    background-color: ${props => props.theme.colors.container};
-  }
-
-  &:focus {
-    outline: none;
-    border-color: ${props => props.theme.colors.primary};
-  }
-`;
+const sortOptions = [
+  { label: 'Name A-Z', value: 'name-asc' },
+  { label: 'Name Z-A', value: 'name-desc' },
+  { label: 'Newest First', value: 'date-newest' },
+  { label: 'Oldest First', value: 'date-oldest' }
+];
 
 const SearchBar: React.FC<SearchBarProps> = ({ 
   searchTerm, 
@@ -121,15 +103,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
       </InputWrapper>
       <SortWrapper>
         <span>Sort by:</span>
-        <SortSelect 
-          value={sortOrder} 
-          onChange={(e) => onSortChange(e.target.value)}
-        >
-          <option value="name-asc">Name A-Z</option>
-          <option value="name-desc">Name Z-A</option>
-          <option value="date-newest">Newest First</option>
-          <option value="date-oldest">Oldest First</option>
-        </SortSelect>
+        <Dropdown
+          options={sortOptions}
+          value={sortOrder}
+          onChange={onSortChange}
+          width="160px"
+        />
       </SortWrapper>
     </SearchContainer>
   );

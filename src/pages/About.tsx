@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
+import { Button } from '../ui/Button/Button';
 
 // ─── Design System Types ──────────────────────────────────────────────────────
 
@@ -256,23 +257,6 @@ const CTAHeadline = styled.h2`
   color: ${props => props.theme.colors.onSurface};
 `;
 
-const CTAButton = styled.button`
-  background: linear-gradient(135deg, ${props => props.theme.colors.primary}, ${props => props.theme.colors.primaryContainer});
-  color: #ffffff;
-  border: none;
-  padding: 18px 36px;
-  border-radius: ${props => props.theme.radius.md};
-  font-weight: 700;
-  font-size: 16px;
-  cursor: pointer;
-  align-self: flex-start;
-  transition: transform 0.2s ease, filter 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.1);
-  }
-`;
 
 // ─── Standard Footer ──────────────────────────────────────────────────────────
 
@@ -413,7 +397,7 @@ const About: React.FC = () => {
               <BodyText style={{ margin: '0 0 32px', textAlign: 'left' }}>
                 Start your collection today. Whether it's a playful dash or a quiet afternoon nap, every moment is a piece of art waiting to be framed.
               </BodyText>
-              <CTAButton>Explore Gallery</CTAButton>
+              <Button variant="cta" style={{ alignSelf: 'flex-start' }}>Explore Gallery</Button>
             </CTAContent>
           </CTALayout>
         </CTAWrapper>

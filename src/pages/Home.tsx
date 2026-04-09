@@ -9,6 +9,7 @@ import Footer from '../components/Footer';
 import { usePets } from '../hooks/usePets';
 import { useSelection } from '../context/SelectionContext';
 import { downloadSelectedImages } from '../utils/downloadImages';
+import { useToast } from '../ui/Toast/Toast';
 
 const PageWrapper = styled.div`
   display: flex;
@@ -70,6 +71,8 @@ const Home: React.FC = () => {
     const [sortOrder, setSortOrder] = useState('name-asc');
     const [isDownloading, setIsDownloading] = useState(false);
 
+    const { showToast } = useToast();
+
     // Filtering & Sorting Logic
     const filteredAndSortedPets = useMemo(() => {
         let result = [...pets];
@@ -119,9 +122,10 @@ const Home: React.FC = () => {
             setIsDownloading(true);
             const urls = Array.from(selectedUrls);
             await downloadSelectedImages(urls);
+            showToast(`Successfully downloaded ${urls.length} images`, { type: 'success', duration: 3000 });
         } catch (err) {
             console.error('Download failed:', err);
-            alert('Some images failed to download. Please check your browser settings.');
+            showToast('Some images failed to download. Please check your browser settings.', { type: 'error', duration: 5000 });
         } finally {
             setIsDownloading(false);
         }
