@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useContext } from 'react';
+import { createContext, useReducer, useContext } from 'react';
 import type { ReactNode } from 'react';
 import type { Pet } from '../types/Pet';
 

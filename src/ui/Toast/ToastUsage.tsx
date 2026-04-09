@@ -18,13 +18,6 @@ const UsageSection = styled.div`
   gap: 16px;
 `;
 
-const SectionTitle = styled.h3`
-  font-family: ${props => props.theme.typography.heading};
-  font-size: 18px;
-  font-weight: 700;
-  color: ${props => props.theme.colors.onSurface};
-`;
-
 const ControlGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));

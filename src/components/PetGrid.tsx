@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import type { Pet } from '../types/Pet';
 
@@ -90,13 +91,21 @@ const PetInfo = styled.div`
   gap: 4px;
 `;
 
-const PetName = styled.h3`
+const PetNameLink = styled(Link)`
+  display: inline-block;
   font-size: 18px;
   font-weight: 700;
   color: ${props => props.theme.colors.onSurface};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-decoration: none;
+
+  &:hover {
+    color: ${props => props.theme.colors.primary};
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
 `;
 
 const PetDetails = styled.p`
@@ -131,7 +140,7 @@ export const PetCard: React.FC<PetCardProps> = ({ pet, isSelected, onToggle }) =
                 </CheckboxWrapper>
             </ImageWrapper>
             <PetInfo>
-                <PetName>{pet.title}</PetName>
+                <PetNameLink to={`/pet/${encodeURIComponent(pet.url)}`}>{pet.title}</PetNameLink>
                 <PetDetails>{pet.description}</PetDetails>
             </PetInfo>
         </CardContainer>
