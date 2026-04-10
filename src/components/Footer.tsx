@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import pawHeartSvg from '../assets/svg/paw-heart.svg';
+
 const FooterContainer = styled.footer`
   padding: 80px 48px;
   display: flex;
@@ -41,7 +43,7 @@ const FooterNav = styled.nav`
   gap: 32px;
 `;
 
-const FooterLink = styled.a`
+const FooterLink = styled(Link)`
   text-decoration: none;
   font-size: 12px;
   font-weight: 700;
@@ -66,9 +68,9 @@ const Footer: React.FC = () => {
                 <CopyrightText>© 2024 PETGALLERY. EDITORIAL EXCELLENCE IN PET PHOTOGRAPHY.</CopyrightText>
             </FooterBrand>
             <FooterNav>
-                <FooterLink href="#">Privacy Policy</FooterLink>
-                <FooterLink href="#">Terms of Service</FooterLink>
-                <FooterLink href="#">Contact Us</FooterLink>
+                <FooterLink to="/privacy">Privacy Policy</FooterLink>
+                <FooterLink to="/terms">Terms of Service</FooterLink>
+                <FooterLink to="/contact">Contact Us</FooterLink>
             </FooterNav>
         </FooterContainer>
     );

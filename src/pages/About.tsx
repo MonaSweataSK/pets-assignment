@@ -281,24 +281,15 @@ const CommunityIcon = () => (
 const About: React.FC = () => {
   return (
     <PageWrapper>
-      <Nav>
-        <NavLogo>
-          <img src={pawHeartSvg} alt="PetGallery Logo" width="48" height="48" />
-          PetGallery
-        </NavLogo>
-        <NavLinks>
-          <NavLinkStyled to="/">Home</NavLinkStyled>
-          <NavLinkStyled to="/about" $active>About</NavLinkStyled>
-        </NavLinks>
-      </Nav>
+      <Navbar />
 
       <HeroSection>
         <IconCard>
           <PawSVG />
         </IconCard>
-        <Headline>About PetGallery</Headline>
+        <Headline>The Vision Behind PetGallery</Headline>
         <BodyText>
-          We believe every pet has a story worth telling. PetGallery is a premium editorial space dedicated to the art of pet photography, bridging the gap between digital convenience and the soul of a boutique art gallery. Our mission is to curate the world's most heartwarming moments, providing a sanctuary for owners to celebrate their companions through a lens of excellence and warmth.
+          PetGallery was born from a simple observation: our companions deserve more than just a place in a phone's camera roll. They deserve a curated, high-fidelity stage. This project is an exploration of editorial-grade web experiences, bridging the gap between digital efficiency and the soul of a boutique art gallery.
         </BodyText>
       </HeroSection>
 
@@ -307,21 +298,45 @@ const About: React.FC = () => {
           <CardIcon>
             <SparkIcon />
           </CardIcon>
-          <CardTitle>Curated Excellence</CardTitle>
+          <CardTitle>Editorial Excellence</CardTitle>
           <CardBody>
-            Every image in our ecosystem is treated with the respect of a masterpiece, ensuring your pet's memory is preserved in high fidelity.
+            Every interaction is designed to respect the subject. From optimized WebP delivery to high-resolution JPEG modal views, quality is my primary north star.
           </CardBody>
         </Card>
         <Card>
           <CardIcon>
             <CommunityIcon />
           </CardIcon>
-          <CardTitle>Soulful Connection</CardTitle>
+          <CardTitle>Crafted Experience</CardTitle>
           <CardBody>
-            Beyond a simple app, we are a community of curators who understand the profound bond between humans and their animals.
+            Beyond features, this is about feeling. A smooth, glassmorphic interface that lets the warmth of the pet photography shine through without distraction.
           </CardBody>
         </Card>
       </FeaturesSection>
+
+      <div style={{ maxWidth: '1040px', margin: '64px auto', padding: '0 48px' }}>
+        <Card style={{ background: 'white', border: '1px solid #f0f0f0' }}>
+          <CardTitle style={{ textAlign: 'center', marginBottom: '32px' }}>Modern Tech Stack</CardTitle>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', textAlign: 'center' }}>
+            <div>
+              <strong style={{ display: 'block', marginBottom: '8px' }}>Framework</strong>
+              <span style={{ color: '#666' }}>React 18 & Vite</span>
+            </div>
+            <div>
+              <strong style={{ display: 'block', marginBottom: '8px' }}>Styling</strong>
+              <span style={{ color: '#666' }}>Styled Components</span>
+            </div>
+            <div>
+              <strong style={{ display: 'block', marginBottom: '8px' }}>Performance</strong>
+              <span style={{ color: '#666' }}>Dynamic Pexels API Optimization</span>
+            </div>
+            <div>
+              <strong style={{ display: 'block', marginBottom: '8px' }}>Routing</strong>
+              <span style={{ color: '#666' }}>React Router v7 (Deep Linking)</span>
+            </div>
+          </div>
+        </Card>
+      </div>
 
       <CTAWrapper>
         <CTALayout>
@@ -330,29 +345,17 @@ const About: React.FC = () => {
             alt="Artistic portrait of a dog" 
           />
           <CTAContent>
-            <CTAHeadline>Join Our Journey</CTAHeadline>
+            <CTAHeadline>Explore the Collection</CTAHeadline>
             <BodyText style={{ margin: '0 0 32px', textAlign: 'left' }}>
-              Start your collection today. Whether it's a playful dash or a quiet afternoon nap, every moment is a piece of art waiting to be framed.
+              Every pet has a story. Whether it's a playful dash or a quiet afternoon nap, every moment is a piece of art waiting to be discovered in our grid.
             </BodyText>
-            <Button variant="cta" style={{ alignSelf: 'flex-start' }}>Explore Gallery</Button>
+            <Link to="/">
+              <Button variant="cta" style={{ alignSelf: 'flex-start' }}>Visit the Gallery</Button>
+            </Link>
           </CTAContent>
         </CTALayout>
       </CTAWrapper>
-
-      <FooterStyled>
-        <FooterBrand>
-          <FooterLogoText>
-            <img src={pawHeartSvg} alt="PetGallery Logo" width="24" height="24" />
-            PetGallery
-          </FooterLogoText>
-          <CopyrightText>© 2024 PetGallery. Editorial Excellence in Pet Photography.</CopyrightText>
-        </FooterBrand>
-        <FooterNav>
-          <FooterLink href="#">Privacy Policy</FooterLink>
-          <FooterLink href="#">Terms of Service</FooterLink>
-          <FooterLink href="#">Contact Us</FooterLink>
-        </FooterNav>
-      </FooterStyled>
+      <Footer />
     </PageWrapper>
   );
 };

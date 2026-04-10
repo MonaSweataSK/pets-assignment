@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import styled from 'styled-components';
+import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import SearchBar from '../components/SearchBar';
 import SelectionToolbar from '../components/SelectionToolbar';
@@ -68,12 +69,21 @@ const Home: React.FC = () => {
     const { pets, loading, error } = usePets();
     const { selectedUrls, select, clear, selectAll, clearAll, isSelected } = useSelection();
     
+    const { index } = useParams();
+    const navigate = useNavigate();
+
     const [searchTerm, setSearchTerm] = useState('');
     const [sortOrder, setSortOrder] = useState('name-asc');
     const [isDownloading, setIsDownloading] = useState(false);
-    const [selectedPetIndex, setSelectedPetIndex] = useState<number | null>(null);
 
     const { showToast } = useToast();
+
+    // Derive selectedPetIndex from URL param
+    const selectedPetIndex = useMemo(() => {
+        if (index === undefined) return null;
+        const n = parseInt(index, 10);
+        return isNaN(n) ? null : n;
+    }, [index]);
 
     // Filtering & Sorting Logic
     const filteredAndSortedPets = useMemo(() => {
@@ -107,6 +117,13 @@ const Home: React.FC = () => {
         return result;
     }, [pets, searchTerm, sortOrder]);
 
+    // Ensure the index remains valid if the list changes
+    useEffect(() => {
+        if (selectedPetIndex !== null && selectedPetIndex >= filteredAndSortedPets.length) {
+            navigate('/', { replace: true });
+        }
+    }, [filteredAndSortedPets, selectedPetIndex, navigate]);
+
     const handleSelectAll = () => {
         selectAll(filteredAndSortedPets);
     };
@@ -128,14 +145,22 @@ const Home: React.FC = () => {
     // Modal navigation
     const handleNextPet = () => {
         if (selectedPetIndex !== null && selectedPetIndex < filteredAndSortedPets.length - 1) {
-            setSelectedPetIndex(selectedPetIndex + 1);
+            navigate(`/pet/${selectedPetIndex + 1}`);
         }
     };
 
     const handlePrevPet = () => {
         if (selectedPetIndex !== null && selectedPetIndex > 0) {
-            setSelectedPetIndex(selectedPetIndex - 1);
+            navigate(`/pet/${selectedPetIndex - 1}`);
         }
+    };
+
+    const handleOpenPet = (idx: number) => {
+        navigate(`/pet/${idx}`);
+    };
+
+    const handleClosePet = () => {
+        navigate('/');
     };
 
     // Calculate mocked size (0.8MB per selected image)
@@ -195,7 +220,7 @@ const Home: React.FC = () => {
                                     key={pet.url} 
                                     pet={pet} 
                                     petIndex={index}
-                                    onOpen={setSelectedPetIndex}
+                                    onOpen={handleOpenPet}
                                     priority={index < 8}
                                     fetchPriority={index === 0 ? 'high' : index < 8 ? 'auto' : 'low'}
                                 />
@@ -207,7 +232,7 @@ const Home: React.FC = () => {
                                 pet={filteredAndSortedPets[selectedPetIndex]}
                                 currentIndex={selectedPetIndex}
                                 totalCount={filteredAndSortedPets.length}
-                                onClose={() => setSelectedPetIndex(null)}
+                                onClose={handleClosePet}
                                 onNext={handleNextPet}
                                 onPrev={handlePrevPet}
                             />

@@ -4,6 +4,9 @@ import { theme } from './theme';
 import { GlobalStyles } from './styles/GlobalStyles';
 import Home from './pages/Home';
 import About from './pages/About';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
+import Contact from './pages/Contact';
 import DesignSystem from './pages/DesignSystem';
 import { ToastRenderer } from './ui/Toast/Toast';
 
@@ -15,7 +18,11 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/pet/:index" element={<Home />} />
           <Route path="/about" element={<About />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/design-system" element={<DesignSystem />} />
         </Routes>
       </Router>
