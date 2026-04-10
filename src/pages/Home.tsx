@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import SearchBar from '../components/SearchBar';
 import SelectionToolbar from '../components/SelectionToolbar';
 import { PetGrid, PetCard } from '../components/PetGrid';
+import { PetDetailModal } from '../components/PetDetailModal';
 
 import Footer from '../components/Footer';
 import { usePets } from '../hooks/usePets';
@@ -70,16 +71,9 @@ const Home: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortOrder, setSortOrder] = useState('name-asc');
     const [isDownloading, setIsDownloading] = useState(false);
+    const [selectedPetIndex, setSelectedPetIndex] = useState<number | null>(null);
 
     const { showToast } = useToast();
-
-    const indexByUrl = useMemo(() => {
-        const map = new Map<string, number>();
-        pets.forEach((pet, index) => {
-            map.set(pet.url, index);
-        });
-        return map;
-    }, [pets]);
 
     // Filtering & Sorting Logic
     const filteredAndSortedPets = useMemo(() => {
@@ -128,6 +122,19 @@ const Home: React.FC = () => {
             showToast('Some images failed to download. Please check your browser settings.', { type: 'error', duration: 5000 });
         } finally {
             setIsDownloading(false);
+        }
+    };
+
+    // Modal navigation
+    const handleNextPet = () => {
+        if (selectedPetIndex !== null && selectedPetIndex < filteredAndSortedPets.length - 1) {
+            setSelectedPetIndex(selectedPetIndex + 1);
+        }
+    };
+
+    const handlePrevPet = () => {
+        if (selectedPetIndex !== null && selectedPetIndex > 0) {
+            setSelectedPetIndex(selectedPetIndex - 1);
         }
     };
 
@@ -187,13 +194,24 @@ const Home: React.FC = () => {
                                 <PetCard 
                                     key={pet.url} 
                                     pet={pet} 
-                                    petIndex={indexByUrl.get(pet.url) ?? pets.findIndex(p => p.url === pet.url)}
+                                    petIndex={index}
+                                    onOpen={setSelectedPetIndex}
                                     priority={index < 8}
                                     fetchPriority={index === 0 ? 'high' : index < 8 ? 'auto' : 'low'}
                                 />
                             ))}
                         </PetGrid>
 
+                        {selectedPetIndex !== null && filteredAndSortedPets[selectedPetIndex] && (
+                            <PetDetailModal 
+                                pet={filteredAndSortedPets[selectedPetIndex]}
+                                currentIndex={selectedPetIndex}
+                                totalCount={filteredAndSortedPets.length}
+                                onClose={() => setSelectedPetIndex(null)}
+                                onNext={handleNextPet}
+                                onPrev={handlePrevPet}
+                            />
+                        )}
                     </>
                 )}
             </MainContent>

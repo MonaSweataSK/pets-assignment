@@ -23,6 +23,7 @@ const CardContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+  cursor: pointer;
 `;
 
 const ImageWrapper = styled.div<{ $selected?: boolean; $anySelected?: boolean }>`
@@ -139,71 +140,71 @@ const PetDetails = styled.p`
 interface PetCardProps {
   pet: Pet;
   petIndex: number;
+  onOpen: (index: number) => void;
   priority?: boolean;
   fetchPriority?: 'high' | 'low' | 'auto';
 }
 
 const CheckIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="20 6 9 17 4 12" />
-    </svg>
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
 );
 
-export const PetCard: React.FC<PetCardProps> = ({ pet, petIndex, priority, fetchPriority }) => {
-    const navigate = useNavigate();
-    const { selectedUrls, isSelected, select, clear } = useSelection();
-    
-    const selected = isSelected(pet.url);
-    const anySelected = selectedUrls.size > 0;
+export const PetCard: React.FC<PetCardProps> = ({ pet, petIndex, onOpen, priority, fetchPriority }) => {
+  const { selectedUrls, isSelected, select, clear } = useSelection();
 
-    const toggle = () => {
-        if (selected) clear(pet.url);
-        else select(pet.url);
-    };
+  const selected = isSelected(pet.url);
+  const anySelected = selectedUrls.size > 0;
 
-    const handleImageClick = (e: React.MouseEvent) => {
-        if (anySelected) {
-            toggle();
-        } else {
-            navigate(`/pet/${petIndex}`);
-        }
-    };
+  const toggle = () => {
+    if (selected) clear(pet.url);
+    else select(pet.url);
+  };
 
-    const handleCheckboxClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        toggle();
-    };
+  const handleImageClick = (e: React.MouseEvent) => {
+    if (anySelected) {
+      toggle();
+    } else {
+      onOpen(petIndex);
+    }
+  };
 
-    return (
-        <CardContainer>
-            <ImageWrapper 
-                $selected={selected} 
-                $anySelected={anySelected}
-                onClick={handleImageClick}
-            >
-                <PetImage 
-                    src={pet.url} 
-                    alt={pet.title} 
-                    loading={priority ? "eager" : "lazy"} 
-                    fetchPriority={fetchPriority} 
-                />
-                <CheckboxWrapper 
-                    className="checkbox-trigger"
-                    $selected={selected} 
-                    $visible={anySelected}
-                    onClick={handleCheckboxClick}
-                >
-                    <CheckIcon />
-                </CheckboxWrapper>
-            </ImageWrapper>
-            <PetInfo>
-                <PetNameLink to={`/pet/${petIndex}`}>{pet.title}</PetNameLink>
-                <PetDetails>{pet.description}</PetDetails>
-            </PetInfo>
-        </CardContainer>
-    );
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggle();
+  };
+
+  return (
+    <CardContainer onClick={() => onOpen(petIndex)}>
+      <ImageWrapper
+        $selected={selected}
+        $anySelected={anySelected}
+        onClick={handleImageClick}
+      >
+        <PetImage
+          src={pet.url}
+          alt={pet.title}
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={fetchPriority}
+        />
+        <CheckboxWrapper
+          className="checkbox-trigger"
+          $selected={selected}
+          $visible={anySelected}
+          onClick={handleCheckboxClick}
+        >
+          <CheckIcon />
+        </CheckboxWrapper>
+      </ImageWrapper>
+      <PetInfo>
+        <PetNameLink as="div">{pet.title}</PetNameLink>
+        <PetDetails>{pet.description}</PetDetails>
+      </PetInfo>
+    </CardContainer>
+  );
 };
 
 export const PetGrid: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    return <Grid>{children}</Grid>;
+  return <Grid>{children}</Grid>;
 };
