@@ -8,6 +8,9 @@ While most of the structural building blocks reside in `src/components`, the pag
 ### 2. \`About.tsx\`
 - **\`Button\`**: Uses the foundational Button component specifically utilizing the \`"cta"\` (Call To Action) variant and \`"lg"\` size to drive user engagement inside the main promotional banner, applying the premium branded gradient defined in the design tokens.
 
----
+### 3. `PetDetail.tsx`
+- **`Button`**: Employs Ghost and Primary (or generic) button variants for "Back to Gallery" and "Download" functionality, ensuring interactive elements have consistent hover states and brand aesthetics. 
+- **`Toast` (`useToast` hook)**: Utilized to notify the user of successful or failed operations when individually downloading a highlighted pet image.
 
-*Note: The pages naturally inherit all underlying Design Library elements embedded within the components they render (such as \`Navbar\`, \`SelectionToolbar\`, and \`SearchBar\` which leverage \`Dropdown\`, \`Toolbar\`, and more).*
+### 4. `DesignSystem.tsx`
+- **Reference Hub**: This page acts as the internal documentation and sandbox for the `src/ui` library itself. It imports and renders every variant of `Button`, the `Dropdown` behaviors, mock `Toolbar` layouts, and triggers dummy `Toast` notifications so front-end engineers can test and reference the core design system without navigating through the actual application flows.

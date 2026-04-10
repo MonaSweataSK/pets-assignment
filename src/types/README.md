@@ -1,1 +1,0 @@
-This interface is used to define the structure of the pet data returned by the api
