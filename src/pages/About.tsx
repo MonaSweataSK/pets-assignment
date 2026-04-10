@@ -1,57 +1,7 @@
 import { Link } from 'react-router-dom';
-import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 import { Button } from '../ui/Button/Button';
 import pawHeartSvg from '../assets/svg/paw-heart.svg';
-// ─── Design System Types ──────────────────────────────────────────────────────
-
-// Type declaration removed; now managed globally in theme.ts
-
-// ─── Design System Theme ──────────────────────────────────────────────────────
-
-const theme = {
-  colors: {
-    surface: '#faf9f7',
-    container: '#efeeec',
-    lowest: '#ffffff',
-    primary: '#a43700',
-    primaryContainer: '#c94c13',
-    onSurface: '#1a1c1b',
-    onSurfaceVariant: '#594139',
-    outline: '#8c7168',
-    border: '#e0bfb4',
-  },
-  typography: {
-    heading: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
-    sans: "'Inter', system-ui, -apple-system, sans-serif",
-  },
-  shadows: {
-    soft: '0 12px 32px rgba(140, 113, 104, 0.04)',
-    medium: '0 12px 32px rgba(140, 113, 104, 0.08)',
-    elevated: '0 20px 48px rgba(140, 113, 104, 0.12)',
-  },
-  radius: {
-    lg: '24px',
-    md: '12px',
-    sm: '8px',
-  }
-};
-
-// ─── Global Styles ───────────────────────────────────────────────────────────
-
-const GlobalStyle = createGlobalStyle`
-  body {
-    margin: 0;
-    padding: 0;
-    background-color: ${props => props.theme.colors.surface};
-    color: ${props => props.theme.colors.onSurfaceVariant};
-    font-family: ${props => props.theme.typography.sans};
-    -webkit-font-smoothing: antialiased;
-  }
-  
-  * {
-    box-sizing: border-box;
-  }
-`;
 
 // ─── Styled Components ────────────────────────────────────────────────────────
 
@@ -330,83 +280,80 @@ const CommunityIcon = () => (
 
 const About: React.FC = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <GlobalStyle />
-      <PageWrapper>
-        <Nav>
-          <NavLogo>
-            <img src={pawHeartSvg} alt="PetGallery Logo" width="48" height="48" />
+    <PageWrapper>
+      <Nav>
+        <NavLogo>
+          <img src={pawHeartSvg} alt="PetGallery Logo" width="48" height="48" />
+          PetGallery
+        </NavLogo>
+        <NavLinks>
+          <NavLinkStyled to="/">Home</NavLinkStyled>
+          <NavLinkStyled to="/about" $active>About</NavLinkStyled>
+        </NavLinks>
+      </Nav>
+
+      <HeroSection>
+        <IconCard>
+          <PawSVG />
+        </IconCard>
+        <Headline>About PetGallery</Headline>
+        <BodyText>
+          We believe every pet has a story worth telling. PetGallery is a premium editorial space dedicated to the art of pet photography, bridging the gap between digital convenience and the soul of a boutique art gallery. Our mission is to curate the world's most heartwarming moments, providing a sanctuary for owners to celebrate their companions through a lens of excellence and warmth.
+        </BodyText>
+      </HeroSection>
+
+      <FeaturesSection>
+        <Card>
+          <CardIcon>
+            <SparkIcon />
+          </CardIcon>
+          <CardTitle>Curated Excellence</CardTitle>
+          <CardBody>
+            Every image in our ecosystem is treated with the respect of a masterpiece, ensuring your pet's memory is preserved in high fidelity.
+          </CardBody>
+        </Card>
+        <Card>
+          <CardIcon>
+            <CommunityIcon />
+          </CardIcon>
+          <CardTitle>Soulful Connection</CardTitle>
+          <CardBody>
+            Beyond a simple app, we are a community of curators who understand the profound bond between humans and their animals.
+          </CardBody>
+        </Card>
+      </FeaturesSection>
+
+      <CTAWrapper>
+        <CTALayout>
+          <CTAImage 
+            src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=1200" 
+            alt="Artistic portrait of a dog" 
+          />
+          <CTAContent>
+            <CTAHeadline>Join Our Journey</CTAHeadline>
+            <BodyText style={{ margin: '0 0 32px', textAlign: 'left' }}>
+              Start your collection today. Whether it's a playful dash or a quiet afternoon nap, every moment is a piece of art waiting to be framed.
+            </BodyText>
+            <Button variant="cta" style={{ alignSelf: 'flex-start' }}>Explore Gallery</Button>
+          </CTAContent>
+        </CTALayout>
+      </CTAWrapper>
+
+      <FooterStyled>
+        <FooterBrand>
+          <FooterLogoText>
+            <img src={pawHeartSvg} alt="PetGallery Logo" width="24" height="24" />
             PetGallery
-          </NavLogo>
-          <NavLinks>
-            <NavLinkStyled to="/">Home</NavLinkStyled>
-            <NavLinkStyled to="/about" $active>About</NavLinkStyled>
-          </NavLinks>
-        </Nav>
-
-        <HeroSection>
-          <IconCard>
-            <PawSVG />
-          </IconCard>
-          <Headline>About PetGallery</Headline>
-          <BodyText>
-            We believe every pet has a story worth telling. PetGallery is a premium editorial space dedicated to the art of pet photography, bridging the gap between digital convenience and the soul of a boutique art gallery. Our mission is to curate the world's most heartwarming moments, providing a sanctuary for owners to celebrate their companions through a lens of excellence and warmth.
-          </BodyText>
-        </HeroSection>
-
-        <FeaturesSection>
-          <Card>
-            <CardIcon>
-              <SparkIcon />
-            </CardIcon>
-            <CardTitle>Curated Excellence</CardTitle>
-            <CardBody>
-              Every image in our ecosystem is treated with the respect of a masterpiece, ensuring your pet's memory is preserved in high fidelity.
-            </CardBody>
-          </Card>
-          <Card>
-            <CardIcon>
-              <CommunityIcon />
-            </CardIcon>
-            <CardTitle>Soulful Connection</CardTitle>
-            <CardBody>
-              Beyond a simple app, we are a community of curators who understand the profound bond between humans and their animals.
-            </CardBody>
-          </Card>
-        </FeaturesSection>
-
-        <CTAWrapper>
-          <CTALayout>
-            <CTAImage 
-              src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=1200" 
-              alt="Artistic portrait of a dog" 
-            />
-            <CTAContent>
-              <CTAHeadline>Join Our Journey</CTAHeadline>
-              <BodyText style={{ margin: '0 0 32px', textAlign: 'left' }}>
-                Start your collection today. Whether it's a playful dash or a quiet afternoon nap, every moment is a piece of art waiting to be framed.
-              </BodyText>
-              <Button variant="cta" style={{ alignSelf: 'flex-start' }}>Explore Gallery</Button>
-            </CTAContent>
-          </CTALayout>
-        </CTAWrapper>
-
-        <FooterStyled>
-          <FooterBrand>
-            <FooterLogoText>
-              <img src={pawHeartSvg} alt="PetGallery Logo" width="24" height="24" />
-              PetGallery
-            </FooterLogoText>
-            <CopyrightText>© 2024 PetGallery. Editorial Excellence in Pet Photography.</CopyrightText>
-          </FooterBrand>
-          <FooterNav>
-            <FooterLink href="#">Privacy Policy</FooterLink>
-            <FooterLink href="#">Terms of Service</FooterLink>
-            <FooterLink href="#">Contact Us</FooterLink>
-          </FooterNav>
-        </FooterStyled>
-      </PageWrapper>
-    </ThemeProvider>
+          </FooterLogoText>
+          <CopyrightText>© 2024 PetGallery. Editorial Excellence in Pet Photography.</CopyrightText>
+        </FooterBrand>
+        <FooterNav>
+          <FooterLink href="#">Privacy Policy</FooterLink>
+          <FooterLink href="#">Terms of Service</FooterLink>
+          <FooterLink href="#">Contact Us</FooterLink>
+        </FooterNav>
+      </FooterStyled>
+    </PageWrapper>
   );
 };
 
