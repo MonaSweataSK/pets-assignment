@@ -123,6 +123,8 @@ interface PetCardProps {
   petIndex: number;
   isSelected: boolean;
   onToggle: (url: string) => void;
+  priority?: boolean;
+  fetchPriority?: 'high' | 'low' | 'auto';
 }
 
 const CheckIcon = () => (
@@ -131,11 +133,11 @@ const CheckIcon = () => (
     </svg>
 );
 
-export const PetCard: React.FC<PetCardProps> = ({ pet, petIndex, isSelected, onToggle }) => {
+export const PetCard: React.FC<PetCardProps> = ({ pet, petIndex, isSelected, onToggle, priority, fetchPriority }) => {
     return (
         <CardContainer>
             <ImageWrapper $selected={isSelected} onClick={() => onToggle(pet.url)}>
-                <PetImage src={pet.url} alt={pet.title} loading="lazy" />
+                <PetImage src={pet.url} alt={pet.title} loading={priority ? "eager" : "lazy"} fetchPriority={fetchPriority} />
                 <CheckboxWrapper $selected={isSelected}>
                     <CheckIcon />
                 </CheckboxWrapper>

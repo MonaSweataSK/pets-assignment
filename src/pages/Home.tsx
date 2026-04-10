@@ -191,13 +191,15 @@ const Home: React.FC = () => {
                 ) : (
                     <>
                         <PetGrid>
-                            {filteredAndSortedPets.map(pet => (
+                            {filteredAndSortedPets.map((pet, index) => (
                                 <PetCard 
                                     key={pet.url} 
                                     pet={pet} 
                                     petIndex={indexByUrl.get(pet.url) ?? pets.findIndex(p => p.url === pet.url)}
                                     isSelected={isSelected(pet.url)}
                                     onToggle={handleToggleSelection}
+                                    priority={index < 8}
+                                    fetchPriority={index === 0 ? 'high' : index < 8 ? 'auto' : 'low'}
                                 />
                             ))}
                         </PetGrid>
