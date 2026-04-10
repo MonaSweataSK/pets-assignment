@@ -112,8 +112,6 @@ const ImageArea = styled.div`
 const ImagePanel = styled.div`
   flex: 1;
   overflow: hidden;
-  border-radius: ${props => props.theme.radius.lg};
-  background-color: ${props => props.theme.colors.container};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -121,10 +119,12 @@ const ImagePanel = styled.div`
 `;
 
 const PetImage = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  width: 480px;
+  height: 640px;
+  object-fit: cover;
   display: block;
+  border-radius: 24px;
+  object-position: center;
 `;
 
 const NavArrow = styled.button<{ $side: 'left' | 'right' }>`
