@@ -11,7 +11,16 @@ export const fetchPets = async (): Promise<Pet[]> => {
     }
 
     const data: Pet[] = await response.json();
-    return data;
+    
+    // Optimize URLs for better performance (WebP + Compression)
+    // Using w=1000 as a balance between gallery grid performance and detail page quality
+    const optimizedData = data.map(pet => {
+      const baseUrl = pet.url.split('?')[0];
+      const optimizedUrl = `${baseUrl}?auto=compress&cs=tinysrgb&fm=webp&w=1000`;
+      return { ...pet, url: optimizedUrl };
+    });
+
+    return optimizedData;
   } catch (error) {
     console.error('Error pulling pet data:', error);
     throw error;

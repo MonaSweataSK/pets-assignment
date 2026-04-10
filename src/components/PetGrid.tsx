@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import type { Pet } from '../types/Pet';
+import { useSelection } from '../context/SelectionContext';
 
 const Grid = styled.div`
   display: grid;
@@ -24,22 +25,25 @@ const CardContainer = styled.div`
   gap: 16px;
 `;
 
-const ImageWrapper = styled.div<{ $selected?: boolean }>`
+const ImageWrapper = styled.div<{ $selected?: boolean; $anySelected?: boolean }>`
   position: relative;
   aspect-ratio: 1 / 1;
   border-radius: ${props => props.theme.radius.lg};
   overflow: hidden;
   border: 4px solid ${props => props.$selected ? props.theme.colors.primary : 'transparent'};
-  box-shadow: ${props => props.$selected ? props.theme.shadows.medium : props.theme.shadows.soft};
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: ${props => props.$selected ? props.theme.shadows.medium : '0 4px 12px rgba(140, 113, 104, 0.04)'};
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out;
   cursor: pointer;
+  background-color: ${props => props.theme.colors.container};
 
   &:hover {
-    transform: translateY(-4px);
+    transform: translateY(-8px);
     box-shadow: ${props => props.theme.shadows.elevated};
     
-    &::after {
+    /* Show checkbox on hover */
+    .checkbox-trigger {
       opacity: 1;
+      transform: scale(1);
     }
   }
 
@@ -47,9 +51,9 @@ const ImageWrapper = styled.div<{ $selected?: boolean }>`
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(26, 28, 27, 0) 60%, rgba(26, 28, 27, 0.4) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    background: linear-gradient(180deg, rgba(26, 28, 27, 0) 50%, rgba(26, 28, 27, 0.15) 100%);
+    opacity: 1;
+    transition: opacity 0.2s ease-out;
     pointer-events: none;
   }
 `;
@@ -59,29 +63,43 @@ const PetImage = styled.img`
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.3s ease-out;
+
+  ${ImageWrapper}:hover & {
+    transform: scale(1.04);
+  }
 `;
 
-const CheckboxWrapper = styled.div<{ $selected?: boolean }>`
+const CheckboxWrapper = styled.div<{ $selected?: boolean; $visible?: boolean }>`
   position: absolute;
   top: 16px;
   right: 16px;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  background-color: ${props => props.$selected ? props.theme.colors.primary : 'rgba(255, 255, 255, 0.2)'};
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background-color: ${props => props.$selected ? props.theme.colors.primary : 'rgba(255, 255, 255, 0.3)'};
   backdrop-filter: blur(8px);
   border: 2px solid ${props => props.$selected ? props.theme.colors.primary : 'rgba(255, 255, 255, 0.8)'};
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  transition: all 0.2s ease;
-  z-index: 2;
+  transition: opacity 0.15s ease-out, transform 0.15s ease-out, background-color 0.15s ease-out;
+  z-index: 10;
+  
+  /* Initial state: invisible unless selected or forced visible */
+  opacity: ${props => (props.$selected || props.$visible) ? 1 : 0};
+  transform: scale(${props => (props.$selected || props.$visible) ? 1 : 0.85});
+
+  &:hover {
+    transform: scale(1.08) !important;
+    background-color: ${props => props.$selected ? props.theme.colors.primaryContainer : 'rgba(255, 255, 255, 0.5)'};
+  }
 
   svg {
     opacity: ${props => props.$selected ? 1 : 0};
     transform: scale(${props => props.$selected ? 1 : 0.5});
-    transition: all 0.2s ease;
+    transition: opacity 0.15s ease-out, transform 0.15s ease-out;
   }
 `;
 
@@ -100,11 +118,10 @@ const PetNameLink = styled(Link)`
   overflow: hidden;
   text-overflow: ellipsis;
   text-decoration: none;
+  transition: color 0.2s ease;
 
   &:hover {
     color: ${props => props.theme.colors.primary};
-    text-decoration: underline;
-    text-underline-offset: 4px;
   }
 `;
 
@@ -116,29 +133,66 @@ const PetDetails = styled.p`
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  opacity: 0.8;
 `;
 
 interface PetCardProps {
   pet: Pet;
   petIndex: number;
-  isSelected: boolean;
-  onToggle: (url: string) => void;
   priority?: boolean;
   fetchPriority?: 'high' | 'low' | 'auto';
 }
 
 const CheckIcon = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="20 6 9 17 4 12" />
     </svg>
 );
 
-export const PetCard: React.FC<PetCardProps> = ({ pet, petIndex, isSelected, onToggle, priority, fetchPriority }) => {
+export const PetCard: React.FC<PetCardProps> = ({ pet, petIndex, priority, fetchPriority }) => {
+    const navigate = useNavigate();
+    const { selectedUrls, isSelected, select, clear } = useSelection();
+    
+    const selected = isSelected(pet.url);
+    const anySelected = selectedUrls.size > 0;
+
+    const toggle = () => {
+        if (selected) clear(pet.url);
+        else select(pet.url);
+    };
+
+    const handleImageClick = (e: React.MouseEvent) => {
+        if (anySelected) {
+            toggle();
+        } else {
+            navigate(`/pet/${petIndex}`);
+        }
+    };
+
+    const handleCheckboxClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        toggle();
+    };
+
     return (
         <CardContainer>
-            <ImageWrapper $selected={isSelected} onClick={() => onToggle(pet.url)}>
-                <PetImage src={pet.url} alt={pet.title} loading={priority ? "eager" : "lazy"} fetchPriority={fetchPriority} />
-                <CheckboxWrapper $selected={isSelected}>
+            <ImageWrapper 
+                $selected={selected} 
+                $anySelected={anySelected}
+                onClick={handleImageClick}
+            >
+                <PetImage 
+                    src={pet.url} 
+                    alt={pet.title} 
+                    loading={priority ? "eager" : "lazy"} 
+                    fetchPriority={fetchPriority} 
+                />
+                <CheckboxWrapper 
+                    className="checkbox-trigger"
+                    $selected={selected} 
+                    $visible={anySelected}
+                    onClick={handleCheckboxClick}
+                >
                     <CheckIcon />
                 </CheckboxWrapper>
             </ImageWrapper>
