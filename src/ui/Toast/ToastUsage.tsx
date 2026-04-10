@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useToast, ToastProvider } from './Toast';
+import { useToast } from './Toast';
 import type { ToastPosition, ToastType } from './Toast';
 import { Button } from '../Button/Button';
 
@@ -126,7 +126,5 @@ export const ToastUsage: React.FC = () => {
 };
 
 export const StandaloneToastUsage = () => (
-  <ToastProvider>
-    <ToastUsage />
-  </ToastProvider>
+  <ToastUsage />
 );
