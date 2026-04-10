@@ -73,6 +73,14 @@ const Home: React.FC = () => {
 
     const { showToast } = useToast();
 
+    const indexByUrl = useMemo(() => {
+        const map = new Map<string, number>();
+        pets.forEach((pet, index) => {
+            map.set(pet.url, index);
+        });
+        return map;
+    }, [pets]);
+
     // Filtering & Sorting Logic
     const filteredAndSortedPets = useMemo(() => {
         let result = [...pets];
@@ -187,6 +195,7 @@ const Home: React.FC = () => {
                                 <PetCard 
                                     key={pet.url} 
                                     pet={pet} 
+                                    petIndex={indexByUrl.get(pet.url) ?? pets.findIndex(p => p.url === pet.url)}
                                     isSelected={isSelected(pet.url)}
                                     onToggle={handleToggleSelection}
                                 />

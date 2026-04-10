@@ -120,6 +120,7 @@ const PetDetails = styled.p`
 
 interface PetCardProps {
   pet: Pet;
+  petIndex: number;
   isSelected: boolean;
   onToggle: (url: string) => void;
 }
@@ -130,7 +131,7 @@ const CheckIcon = () => (
     </svg>
 );
 
-export const PetCard: React.FC<PetCardProps> = ({ pet, isSelected, onToggle }) => {
+export const PetCard: React.FC<PetCardProps> = ({ pet, petIndex, isSelected, onToggle }) => {
     return (
         <CardContainer>
             <ImageWrapper $selected={isSelected} onClick={() => onToggle(pet.url)}>
@@ -140,7 +141,7 @@ export const PetCard: React.FC<PetCardProps> = ({ pet, isSelected, onToggle }) =
                 </CheckboxWrapper>
             </ImageWrapper>
             <PetInfo>
-                <PetNameLink to={`/pet/${encodeURIComponent(pet.url)}`}>{pet.title}</PetNameLink>
+                <PetNameLink to={`/pet/${petIndex}`}>{pet.title}</PetNameLink>
                 <PetDetails>{pet.description}</PetDetails>
             </PetInfo>
         </CardContainer>

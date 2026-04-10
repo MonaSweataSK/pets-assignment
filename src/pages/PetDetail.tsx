@@ -219,14 +219,6 @@ const NoticeBody = styled.p`
   color: ${props => props.theme.colors.onSurfaceVariant};
 `;
 
-const safeDecodeURIComponent = (value: string) => {
-  try {
-    return decodeURIComponent(value);
-  } catch {
-    return value;
-  }
-};
-
 const formatCreated = (created: string) => {
   const date = new Date(created);
   if (Number.isNaN(date.getTime())) return created;
@@ -235,13 +227,20 @@ const formatCreated = (created: string) => {
 
 const PetDetail: React.FC = () => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const { index } = useParams<{ index: string }>();
   const { pets, loading, error } = usePets();
   const { showToast } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const petUrl = useMemo(() => (id ? safeDecodeURIComponent(id) : ''), [id]);
-  const pet = useMemo(() => pets.find(p => p.url === petUrl), [pets, petUrl]);
+  const petIndex = useMemo(() => {
+    const parsed = Number(index);
+    return Number.isInteger(parsed) ? parsed : Number.NaN;
+  }, [index]);
+
+  const pet = useMemo(() => {
+    if (!Number.isInteger(petIndex)) return undefined;
+    return pets[petIndex];
+  }, [pets, petIndex]);
 
   const download = async () => {
     if (!pet) return;
@@ -279,10 +278,10 @@ const PetDetail: React.FC = () => {
               <NoticeTitle>Could not load pets</NoticeTitle>
               <NoticeBody>{error}</NoticeBody>
             </Notice>
-          ) : !id ? (
+          ) : !index ? (
             <Notice>
               <NoticeTitle>Invalid pet link</NoticeTitle>
-              <NoticeBody>Missing pet identifier in the URL.</NoticeBody>
+              <NoticeBody>Missing pet index in the URL.</NoticeBody>
             </Notice>
           ) : !pet ? (
             <Notice>
