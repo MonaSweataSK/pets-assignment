@@ -1,73 +1,57 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 import { usePets } from '../hooks/usePets';
 import { downloadSelectedImages } from '../utils/downloadImages';
 import { useToast } from '../ui/Toast/Toast';
 
+/* ─── Layout shells ─────────────────────────────────────────────────────── */
+
 const PageWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background-color: ${props => props.theme.colors.surface};
 `;
 
 const MainContent = styled.main`
   flex: 1;
-  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 `;
 
-const Container = styled.div`
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 48px 24px 80px;
+/* Full-height inner shell – everything lives here                           */
+const Shell = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 32px 12px;
+  gap: 12px;
+  overflow: hidden;
 
   @media (max-width: 640px) {
-    padding: 24px;
+    padding: 12px 16px 8px;
   }
 `;
 
-const Title = styled.h1`
-  margin: 0;
-  font-family: ${props => props.theme.typography.heading};
-  font-size: 52px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  color: ${props => props.theme.colors.onSurface};
-  line-height: 1.1;
-
-  @media (max-width: 640px) {
-    font-size: 36px;
-  }
-`;
-
-const Meta = styled.p`
-  margin: 10px 0 0;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: ${props => props.theme.colors.onSurfaceVariant};
-`;
-
-const BackRow = styled.div`
-  margin-bottom: 40px;
-`;
+/* ─── Back row ───────────────────────────────────────────────────────────── */
 
 const BackButton = styled.button`
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: ${props => props.theme.colors.primary};
   font-family: ${props => props.theme.typography.sans};
+  flex-shrink: 0;
 
   &:hover {
     text-decoration: underline;
@@ -76,53 +60,148 @@ const BackButton = styled.button`
 `;
 
 const ArrowLeftIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M19 12H5" />
     <path d="M12 19l-7-7 7-7" />
   </svg>
 );
 
-const HeroImageWrapper = styled.div`
-  width: 100%;
+const TopRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+`;
+
+const Counter = styled.span`
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: ${props => props.theme.colors.onSurfaceVariant};
+  background: ${props => props.theme.colors.container};
+  padding: 4px 12px;
+  border-radius: 999px;
+`;
+
+/* ─── Two-column body ────────────────────────────────────────────────────── */
+
+const Body = styled.div`
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  overflow: hidden;
+  min-height: 0;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
+`;
+
+/* ─── Image panel ────────────────────────────────────────────────────────── */
+
+/* Wrapper adds relative positioning so nav arrows can be overlaid */
+const ImageArea = styled.div`
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+  display: flex;
+`;
+
+const ImagePanel = styled.div`
+  flex: 1;
   overflow: hidden;
   border-radius: ${props => props.theme.radius.lg};
   background-color: ${props => props.theme.colors.container};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
 `;
 
-const Image = styled.img`
+const PetImage = styled.img`
   width: 100%;
-  height: auto;
+  height: 100%;
   object-fit: contain;
   display: block;
 `;
 
-const SplitLayout = styled.section`
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
-  gap: 32px;
-  align-items: start;
+const NavArrow = styled.button<{ $side: 'left' | 'right' }>`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  ${props => props.$side === 'left' ? 'left: 12px;' : 'right: 12px;'}
+  z-index: 10;
 
-  @media (max-width: 960px) {
-    grid-template-columns: 1fr;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  background: ${props => props.theme.colors.surface}cc;
+  backdrop-filter: blur(8px);
+  color: ${props => props.theme.colors.onSurface};
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+  opacity: 0.85;
+
+  &:hover:not(:disabled) {
+    background: ${props => props.theme.colors.surface};
+    opacity: 1;
+    transform: translateY(-50%) scale(1.08);
+  }
+
+  &:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
   }
 `;
 
-const Content = styled.div`
-  width: 100%;
-`;
+/* ─── Info panel ─────────────────────────────────────────────────────────── */
 
-const DescriptionBlock = styled.div`
-  margin-top: 24px;
-  margin-bottom: 40px;
+const InfoPanel = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
+  overflow-y: auto;
+  padding-right: 4px;
+  min-height: 0;
+
+  /* subtle scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: ${props => props.theme.colors.primary}44 transparent;
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb { background: ${props => props.theme.colors.primary}44; border-radius: 2px; }
+`;
+
+const Title = styled.h1`
+  margin: 0;
+  font-family: ${props => props.theme.typography.heading};
+  font-size: clamp(28px, 3vw, 46px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: ${props => props.theme.colors.onSurface};
+  line-height: 1.1;
+`;
+
+const Meta = styled.p`
+  margin: 8px 0 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: ${props => props.theme.colors.onSurfaceVariant};
 `;
 
 const Description = styled.p`
   margin: 0;
-  font-size: 18px;
-  line-height: 1.8;
+  font-size: 16px;
+  line-height: 1.75;
   color: ${props => props.theme.colors.onSurfaceVariant};
   font-weight: 500;
 `;
@@ -131,6 +210,7 @@ const ActionsRow = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  margin-top: auto;
 `;
 
 const PrimaryButton = styled.button<{ $loading?: boolean }>`
@@ -175,12 +255,14 @@ const ButtonSpinner = styled.div`
   }
 `;
 
-const LoadingOverlay = styled.div`
+/* ─── State ──────────────────────────────────────────────────────────────── */
+
+const StateOverlay = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 100px 24px;
+  flex: 1;
   gap: 18px;
   color: ${props => props.theme.colors.onSurfaceVariant};
 `;
@@ -202,6 +284,7 @@ const Notice = styled.div`
   padding: 28px;
   background-color: ${props => props.theme.colors.container};
   border-radius: 24px;
+  max-width: 480px;
 `;
 
 const NoticeTitle = styled.h2`
@@ -219,11 +302,15 @@ const NoticeBody = styled.p`
   color: ${props => props.theme.colors.onSurfaceVariant};
 `;
 
+/* ─── Helpers ────────────────────────────────────────────────────────────── */
+
 const formatCreated = (created: string) => {
   const date = new Date(created);
   if (Number.isNaN(date.getTime())) return created;
   return new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: '2-digit' }).format(date);
 };
+
+/* ─── Component ──────────────────────────────────────────────────────────── */
 
 const PetDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -241,6 +328,26 @@ const PetDetail: React.FC = () => {
     if (!Number.isInteger(petIndex)) return undefined;
     return pets[petIndex];
   }, [pets, petIndex]);
+
+  const prevIndex = petIndex > 0 ? petIndex - 1 : null;
+  const nextIndex = petIndex < pets.length - 1 ? petIndex + 1 : null;
+
+  const goToPrev = useCallback(() => {
+    if (prevIndex !== null) navigate(`/pet/${prevIndex}`);
+  }, [prevIndex, navigate]);
+
+  const goToNext = useCallback(() => {
+    if (nextIndex !== null) navigate(`/pet/${nextIndex}`);
+  }, [nextIndex, navigate]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') goToPrev();
+      if (e.key === 'ArrowRight') goToNext();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [goToPrev, goToNext]);
 
   const download = async () => {
     if (!pet) return;
@@ -260,49 +367,80 @@ const PetDetail: React.FC = () => {
     <PageWrapper>
       <Navbar />
       <MainContent>
-        <Container>
-          <BackRow>
+        <Shell>
+          <TopRow>
             <BackButton onClick={() => navigate(-1)}>
               <ArrowLeftIcon />
               Back to Gallery
             </BackButton>
-          </BackRow>
+            {!loading && !error && pet && pets.length > 0 && (
+              <Counter>{petIndex + 1} of {pets.length}</Counter>
+            )}
+          </TopRow>
 
           {loading ? (
-            <LoadingOverlay>
+            <StateOverlay>
               <Spinner />
-              <p>Fetching pet details...</p>
-            </LoadingOverlay>
+              <p>Fetching pet details…</p>
+            </StateOverlay>
           ) : error ? (
-            <Notice>
-              <NoticeTitle>Could not load pets</NoticeTitle>
-              <NoticeBody>{error}</NoticeBody>
-            </Notice>
+            <StateOverlay>
+              <Notice>
+                <NoticeTitle>Could not load pets</NoticeTitle>
+                <NoticeBody>{error}</NoticeBody>
+              </Notice>
+            </StateOverlay>
           ) : !index ? (
-            <Notice>
-              <NoticeTitle>Invalid pet link</NoticeTitle>
-              <NoticeBody>Missing pet index in the URL.</NoticeBody>
-            </Notice>
+            <StateOverlay>
+              <Notice>
+                <NoticeTitle>Invalid pet link</NoticeTitle>
+                <NoticeBody>Missing pet index in the URL.</NoticeBody>
+              </Notice>
+            </StateOverlay>
           ) : !pet ? (
-            <Notice>
-              <NoticeTitle>Pet not found</NoticeTitle>
-              <NoticeBody>We couldn’t find a pet matching this link.</NoticeBody>
-            </Notice>
+            <StateOverlay>
+              <Notice>
+                <NoticeTitle>Pet not found</NoticeTitle>
+                <NoticeBody>We couldn't find a pet matching this link.</NoticeBody>
+              </Notice>
+            </StateOverlay>
           ) : (
-            <SplitLayout>
-              <HeroImageWrapper>
-                <Image src={pet.url} alt={pet.title} />
-              </HeroImageWrapper>
+            <Body>
+              <ImageArea>
+                <ImagePanel>
+                  <PetImage src={pet.url} alt={pet.title} />
+                </ImagePanel>
 
-              <Content>
+                <NavArrow
+                  $side="left"
+                  onClick={goToPrev}
+                  disabled={prevIndex === null}
+                  aria-label="Previous pet"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M15 18l-6-6 6-6" />
+                  </svg>
+                </NavArrow>
+
+                <NavArrow
+                  $side="right"
+                  onClick={goToNext}
+                  disabled={nextIndex === null}
+                  aria-label="Next pet"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </NavArrow>
+              </ImageArea>
+
+              <InfoPanel>
                 <header>
                   <Title>{pet.title}</Title>
                   <Meta>Added {formatCreated(pet.created)}</Meta>
                 </header>
 
-                <DescriptionBlock>
-                  <Description>{pet.description}</Description>
-                </DescriptionBlock>
+                <Description>{pet.description}</Description>
 
                 <ActionsRow>
                   <PrimaryButton onClick={download} disabled={isDownloading} $loading={isDownloading}>
@@ -310,14 +448,14 @@ const PetDetail: React.FC = () => {
                     Download
                   </PrimaryButton>
                 </ActionsRow>
-              </Content>
-            </SplitLayout>
+              </InfoPanel>
+            </Body>
           )}
-        </Container>
+        </Shell>
       </MainContent>
-      <Footer />
     </PageWrapper>
   );
 };
 
 export default PetDetail;
+
