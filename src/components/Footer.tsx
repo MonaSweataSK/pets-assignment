@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-
+import pawHeartSvg from '../assets/svg/paw-heart.svg';
 const FooterContainer = styled.footer`
   padding: 80px 48px;
   display: flex;
@@ -20,6 +20,9 @@ const FooterBrand = styled.div`
 `;
 
 const FooterLogoText = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: ${props => props.theme.typography.heading};
   font-weight: 700;
   font-size: 16px;
@@ -56,7 +59,10 @@ const Footer: React.FC = () => {
     return (
         <FooterContainer>
             <FooterBrand>
-                <FooterLogoText>PetGallery</FooterLogoText>
+                <FooterLogoText>
+                    <img src={pawHeartSvg} alt="PetGallery Logo" width="24" height="24" />
+                    PetGallery
+                </FooterLogoText>
                 <CopyrightText>© 2024 PETGALLERY. EDITORIAL EXCELLENCE IN PET PHOTOGRAPHY.</CopyrightText>
             </FooterBrand>
             <FooterNav>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import pawHeartSvg from '../assets/svg/paw-heart.svg';
 
 const Nav = styled.nav`
   position: sticky;
@@ -18,6 +19,9 @@ const Nav = styled.nav`
 `;
 
 const Logo = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-family: ${props => props.theme.typography.heading};
   font-weight: 700;
   font-size: 22px;
@@ -57,41 +61,18 @@ const NavLinkStyled = styled(Link)<{ $active?: boolean }>`
   `}
 `;
 
-const ThemeToggle = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  color: ${props => props.theme.colors.onSurface};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: ${props => props.theme.colors.container};
-  }
-`;
-
-const DarkModeIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-  </svg>
-);
-
 const Navbar: React.FC = () => {
   const location = useLocation();
 
   return (
     <Nav>
-      <Logo to="/">PetGallery</Logo>
+      <Logo to="/">
+        <img src={pawHeartSvg} alt="PetGallery Logo" width="48" height="48" />
+        PetGallery
+      </Logo>
       <NavLinks>
         <NavLinkStyled to="/" $active={location.pathname === '/'}>Home</NavLinkStyled>
         <NavLinkStyled to="/about" $active={location.pathname === '/about'}>About</NavLinkStyled>
-        <ThemeToggle aria-label="Toggle dark mode">
-          <DarkModeIcon />
-        </ThemeToggle>
       </NavLinks>
     </Nav>
   );

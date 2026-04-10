@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import styled, { ThemeProvider, createGlobalStyle } from 'styled-components';
 import { Button } from '../ui/Button/Button';
-
+import pawHeartSvg from '../assets/svg/paw-heart.svg';
 // ─── Design System Types ──────────────────────────────────────────────────────
 
 // Type declaration removed; now managed globally in theme.ts
@@ -76,6 +76,9 @@ const Nav = styled.nav`
 `;
 
 const NavLogo = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-family: ${props => props.theme.typography.heading};
   font-weight: 700;
   font-size: 20px;
@@ -111,17 +114,6 @@ const NavLinkStyled = styled(Link)<{ $active?: boolean }>`
   &:hover {
     color: ${props => props.theme.colors.primary};
   }
-`;
-
-const ThemeToggle = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  color: ${props => props.theme.colors.onSurface};
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
 
 // ─── Hero Section ─────────────────────────────────────────────────────────────
@@ -277,6 +269,9 @@ const FooterBrand = styled.div`
 `;
 
 const FooterLogoText = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: ${props => props.theme.typography.heading};
   font-weight: 700;
   font-size: 16px;
@@ -331,12 +326,6 @@ const CommunityIcon = () => (
   </svg>
 );
 
-const DarkModeIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-  </svg>
-);
-
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 const About: React.FC = () => {
@@ -345,13 +334,13 @@ const About: React.FC = () => {
       <GlobalStyle />
       <PageWrapper>
         <Nav>
-          <NavLogo>PetGallery</NavLogo>
+          <NavLogo>
+            <img src={pawHeartSvg} alt="PetGallery Logo" width="48" height="48" />
+            PetGallery
+          </NavLogo>
           <NavLinks>
             <NavLinkStyled to="/">Home</NavLinkStyled>
             <NavLinkStyled to="/about" $active>About</NavLinkStyled>
-            <ThemeToggle aria-label="Toggle dark mode">
-              <DarkModeIcon />
-            </ThemeToggle>
           </NavLinks>
         </Nav>
 
@@ -404,7 +393,10 @@ const About: React.FC = () => {
 
         <FooterStyled>
           <FooterBrand>
-            <FooterLogoText>PetGallery</FooterLogoText>
+            <FooterLogoText>
+              <img src={pawHeartSvg} alt="PetGallery Logo" width="24" height="24" />
+              PetGallery
+            </FooterLogoText>
             <CopyrightText>© 2024 PetGallery. Editorial Excellence in Pet Photography.</CopyrightText>
           </FooterBrand>
           <FooterNav>
