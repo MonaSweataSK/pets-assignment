@@ -1,4 +1,5 @@
-import React, { useState, createContext, useContext, useCallback } from 'react';
+import React, { useCallback } from 'react';
+import { useGlobalState } from 'global-use-state';
 import styled, { css, keyframes } from 'styled-components';
 
 export type ToastType = 'success' | 'error' | 'info';
@@ -10,18 +11,12 @@ export interface ToastOptions {
   duration?: number;
 }
 
-interface ToastMessage {
+export interface ToastMessage {
   id: string;
   message: string;
   type: ToastType;
   position: ToastPosition;
 }
-
-interface ToastContextType {
-  showToast: (message: string, options?: ToastOptions) => void;
-}
-
-const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 // Animations
 const slideInRight = keyframes`
@@ -141,8 +136,8 @@ const InfoIcon = () => (
 
 const POSITIONS: ToastPosition[] = ['top-right', 'top-center', 'bottom-right', 'bottom-center'];
 
-export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+export const useToast = () => {
+  const [, setToasts] = useGlobalState('toasts', []);
 
   const showToast = useCallback((message: string, options: ToastOptions = {}) => {
     const { type = 'success', position = 'top-right', duration = 5000 } = options;
@@ -153,16 +148,23 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, duration);
-  }, []);
+  }, [setToasts]);
+
+  return { showToast };
+};
+
+export const ToastRenderer: React.FC = () => {
+  const [toasts] = useGlobalState('toasts', []);
 
   return (
-    <ToastContext.Provider value={{ showToast }}>
-      {children}
-      {POSITIONS.map(pos => (
-        <ToastContainer key={pos} $position={pos}>
-          {toasts
-            .filter(t => t.position === pos)
-            .map((toast) => (
+    <>
+      {POSITIONS.map(pos => {
+        const positionToasts = toasts.filter(t => t.position === pos);
+        if (positionToasts.length === 0) return null;
+
+        return (
+          <ToastContainer key={pos} $position={pos}>
+            {positionToasts.map((toast) => (
               <StyledToast key={toast.id} $type={toast.type} $position={toast.position}>
                 <IconWrapper $type={toast.type}>
                   {toast.type === 'error' ? (
@@ -176,16 +178,9 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 <MessageText>{toast.message}</MessageText>
               </StyledToast>
             ))}
-        </ToastContainer>
-      ))}
-    </ToastContext.Provider>
+          </ToastContainer>
+        );
+      })}
+    </>
   );
-};
-
-export const useToast = () => {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
-  }
-  return context;
 };
