@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import type { Pet } from '../types/Pet';
 import { fetchPets } from '../api/pets';
 
+// Hoist the fetch call to the module level so it fires immediately when the JS bundle is parsed,
+// rather than waiting for the React component tree to mount. This significantly improves LCP.
+const petsPromise = fetchPets();
+
 export const usePets = () => {
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -14,9 +18,10 @@ export const usePets = () => {
       try {
         setLoading(true);
         setError(null);
-        
-        const data = await fetchPets();
-        
+
+        // Await the pre-fetched promise
+        const data = await petsPromise;
+
         if (isMounted) {
           setPets(data);
         }
