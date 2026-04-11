@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -49,7 +49,7 @@ const EmptyState = styled.div`
 `;
 
 const Home: React.FC = () => {
-    const { pets, loading, error } = usePets();
+    const { pets, loading, isFetchingMore, error, loadMore, hasMore } = usePets();
     const { selectedUrls, selectAll, clearAll } = useSelection();
     
     const { index } = useParams();
@@ -60,6 +60,23 @@ const Home: React.FC = () => {
     const [isDownloading, setIsDownloading] = useState(false);
 
     const { showToast } = useToast();
+
+    // Sentinel for infinite scroll
+    const sentinelRef = useRef<HTMLDivElement>(null);
+
+    // Infinite scroll observer
+    useEffect(() => {
+        if (!sentinelRef.current || !hasMore || loading || isFetchingMore) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                loadMore();
+            }
+        }, { threshold: 0.1 });
+
+        observer.observe(sentinelRef.current);
+        return () => observer.disconnect();
+    }, [loadMore, hasMore, loading, isFetchingMore]);
 
     // Derive selectedPetIndex from URL param
     const selectedPetIndex = useMemo(() => {
@@ -103,9 +120,12 @@ const Home: React.FC = () => {
     // Ensure the index remains valid if the list changes
     useEffect(() => {
         if (selectedPetIndex !== null && selectedPetIndex >= filteredAndSortedPets.length) {
-            navigate('/', { replace: true });
+            // Only redirect if we AREN'T loading more and the pets list isn't empty
+            if (!loading && !isFetchingMore && filteredAndSortedPets.length > 0) {
+               navigate('/', { replace: true });
+            }
         }
-    }, [filteredAndSortedPets, selectedPetIndex, navigate]);
+    }, [filteredAndSortedPets, selectedPetIndex, navigate, loading, isFetchingMore]);
 
     const handleSelectAll = () => {
         selectAll(filteredAndSortedPets);
@@ -171,7 +191,7 @@ const Home: React.FC = () => {
                     />
                 )}
 
-                {loading ? (
+                {loading && pets.length === 0 ? (
                     <PetGrid>
                         {[...Array(8)].map((_, i) => (
                             <PetCardSkeleton key={i} />
@@ -201,7 +221,7 @@ const Home: React.FC = () => {
                         <PetGrid>
                             {filteredAndSortedPets.map((pet, index) => (
                                 <PetCard 
-                                    key={pet.url} 
+                                    key={`${pet.url}-${index}`} 
                                     pet={pet} 
                                     petIndex={index}
                                     onOpen={handleOpenPet}
@@ -210,6 +230,17 @@ const Home: React.FC = () => {
                                 />
                             ))}
                         </PetGrid>
+
+                        {/* Sentinel for infinite scroll */}
+                        <div ref={sentinelRef} style={{ height: '40px', visibility: 'hidden' }} aria-hidden="true" />
+                        
+                        {isFetchingMore && (
+                             <PetGrid>
+                                {[...Array(4)].map((_, i) => (
+                                    <PetCardSkeleton key={`loading-${i}`} />
+                                ))}
+                            </PetGrid>
+                        )}
 
                         {selectedPetIndex !== null && filteredAndSortedPets[selectedPetIndex] && (
                             <PetDetailModal 
