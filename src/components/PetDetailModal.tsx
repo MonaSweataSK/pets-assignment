@@ -203,7 +203,19 @@ const NavArrow = styled.button<{ $side: 'left' | 'right' }>`
   &:disabled { opacity: 0.1; cursor: not-allowed; }
 
   @media (max-width: 1400px) { ${props => props.$side === 'left' ? 'left: 10px;' : 'right: 10px;'} }
-  @media (max-width: 640px) { display: none; }
+  @media (max-width: 640px) { 
+    top: 35%;
+    padding: 10px;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(8px);
+    border-radius: 50%;
+    ${props => props.$side === 'left' ? 'left: 16px;' : 'right: 16px;'}
+    
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
 `;
 
 const CounterBadge = styled.div`
