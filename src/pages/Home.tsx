@@ -48,25 +48,71 @@ const EmptyState = styled.div`
   color: ${props => props.theme.colors.onSurfaceVariant};
 `;
 
+const StickyHeader = styled.div`
+  position: sticky;
+  top: 80px;
+  z-index: 90;
+  background-color: ${props => props.theme.colors.lowest};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+`;
+
+const SortResetSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 64px 24px;
+  background-color: ${props => props.theme.colors.surface};
+  border-top: 1px solid ${props => props.theme.colors.container};
+  text-align: center;
+`;
+
+const ResetButton = styled.button`
+  padding: 12px 24px;
+  background-color: ${props => props.theme.colors.primary};
+  color: white;
+  border: none;
+  border-radius: ${props => props.theme.radius.md};
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: ${props => props.theme.colors.primaryContainer};
+    transform: translateY(-2px);
+  }
+`;
+
+const SortMessage = styled.p`
+  color: ${props => props.theme.colors.onSurfaceVariant};
+  font-size: 15px;
+  max-width: 400px;
+  line-height: 1.5;
+`;
+
 const Home: React.FC = () => {
-    const { pets, loading, isFetchingMore, error, loadMore, hasMore } = usePets();
+    const { pets, setPets, loading, isFetchingMore, error, loadMore, hasMore } = usePets();
     const { selectedUrls, selectAll, clearAll } = useSelection();
     
     const { index } = useParams();
     const navigate = useNavigate();
 
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortOrder, setSortOrder] = useState('name-asc');
+    const [sortOrder, setSortOrder] = useState('none');
     const [isDownloading, setIsDownloading] = useState(false);
 
     const { showToast } = useToast();
 
+    // The core architectural switch: Infinite vs Sorted
+    const isSortedMode = sortOrder !== 'none';
+
     // Sentinel for infinite scroll
     const sentinelRef = useRef<HTMLDivElement>(null);
 
-    // Infinite scroll observer
+    // Infinite scroll observer: Only active in non-sorted mode
     useEffect(() => {
-        if (!sentinelRef.current || !hasMore || loading || isFetchingMore) return;
+        if (!sentinelRef.current || !hasMore || loading || isFetchingMore || isSortedMode) return;
 
         const observer = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting) {
@@ -98,21 +144,23 @@ const Home: React.FC = () => {
             );
         }
 
-        // Sort
-        result.sort((a, b) => {
-            switch (sortOrder) {
-                case 'name-asc':
-                    return a.title.localeCompare(b.title);
-                case 'name-desc':
-                    return b.title.localeCompare(a.title);
-                case 'date-newest':
-                    return new Date(b.created).getTime() - new Date(a.created).getTime();
-                case 'date-oldest':
-                    return new Date(a.created).getTime() - new Date(b.created).getTime();
-                default:
-                    return 0;
-            }
-        });
+        // Sort: Only apply if a specific order is selected
+        if (sortOrder !== 'none') {
+            result.sort((a, b) => {
+                switch (sortOrder) {
+                    case 'name-asc':
+                        return (a.title || '').localeCompare(b.title || '', 'en', { sensitivity: 'base' });
+                    case 'name-desc':
+                        return (b.title || '').localeCompare(a.title || '', 'en', { sensitivity: 'base' });
+                    case 'date-newest':
+                        return new Date(b.created).getTime() - new Date(a.created).getTime();
+                    case 'date-oldest':
+                        return new Date(a.created).getTime() - new Date(b.created).getTime();
+                    default:
+                        return 0;
+                }
+            });
+        }
 
         return result;
     }, [pets, searchTerm, sortOrder]);
@@ -166,6 +214,14 @@ const Home: React.FC = () => {
         navigate('/');
     };
 
+    const handleResetSort = () => {
+        // Handover current sorted order to state to prevent jumping
+        setPets(filteredAndSortedPets);
+        setSortOrder('none');
+        // Initiate fetch immediately
+        setTimeout(() => loadMore(), 0);
+    };
+
     // Calculate mocked size (0.8MB per selected image)
     const totalSize = (selectedUrls.size * 0.8).toFixed(1) + ' MB';
 
@@ -173,23 +229,25 @@ const Home: React.FC = () => {
         <PageWrapper>
             <Navbar />
             <MainContent>
-                <SearchBar 
-                    searchTerm={searchTerm} 
-                    onSearchChange={setSearchTerm}
-                    sortOrder={sortOrder}
-                    onSortChange={setSortOrder}
-                />
-                
-                {selectedUrls.size > 0 && (
-                    <SelectionToolbar 
-                        selectedCount={selectedUrls.size}
-                        totalSize={totalSize}
-                        onSelectAll={handleSelectAll}
-                        onClearAll={clearAll}
-                        onDownload={handleDownload}
-                        isDownloading={isDownloading}
+                <StickyHeader>
+                    <SearchBar 
+                        searchTerm={searchTerm} 
+                        onSearchChange={setSearchTerm}
+                        sortOrder={sortOrder}
+                        onSortChange={setSortOrder}
                     />
-                )}
+                    
+                    {selectedUrls.size > 0 && (
+                        <SelectionToolbar 
+                            selectedCount={selectedUrls.size}
+                            totalSize={totalSize}
+                            onSelectAll={handleSelectAll}
+                            onClearAll={clearAll}
+                            onDownload={handleDownload}
+                            isDownloading={isDownloading}
+                        />
+                    )}
+                </StickyHeader>
 
                 {loading && pets.length === 0 ? (
                     <PetGrid>
@@ -231,10 +289,23 @@ const Home: React.FC = () => {
                             ))}
                         </PetGrid>
 
-                        {/* Sentinel for infinite scroll */}
-                        <div ref={sentinelRef} style={{ height: '40px', visibility: 'hidden' }} aria-hidden="true" />
+                        {/* Sentinel for infinite scroll: Reduced to 1px to avoid phantom whitespace */}
+                        {!isSortedMode && (
+                            <div ref={sentinelRef} style={{ height: '1px', visibility: 'hidden', margin: 0, padding: 0 }} aria-hidden="true" />
+                        )}
+
+                        {isSortedMode && (
+                            <SortResetSection>
+                                <SortMessage>
+                                    Infinite scroll is paused while sorting. Clear sorting to discover more pets.
+                                </SortMessage>
+                                <ResetButton onClick={handleResetSort}>
+                                    Disable Sort & See New Images
+                                </ResetButton>
+                            </SortResetSection>
+                        )}
                         
-                        {isFetchingMore && (
+                        {isFetchingMore && !isSortedMode && (
                              <PetGrid>
                                 {[...Array(4)].map((_, i) => (
                                     <PetCardSkeleton key={`loading-${i}`} />

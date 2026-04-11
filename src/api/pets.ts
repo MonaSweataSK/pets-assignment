@@ -27,7 +27,8 @@ export const fetchPets = async (page: number = 1, limit: number = 4): Promise<Pe
       }
 
       // Eulerity returns all pets at once, we map them to our Pet interface
-      return json.map((item: any) => ({
+      // We trim to 20 to keep a perfectly balanced 5x4 grid
+      return json.slice(0, 20).map((item: any) => ({
         title: item.title || 'Pet',
         description: item.description || 'A beautiful pet photo.',
         url: item.url || '',

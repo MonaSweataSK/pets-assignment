@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import styled, { css } from 'styled-components';
+import React, { useState, useRef, useEffect } from 'react';
+import styled from 'styled-components';
 
 interface DownloadDropdownProps {
   onDownload: (urlParams: string) => Promise<void>;

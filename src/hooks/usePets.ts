@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Pet } from '../types/Pet';
 import { fetchPets } from '../api/pets';
 
@@ -9,9 +9,13 @@ export const usePets = () => {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
+  const isFetchingRef = useRef<boolean>(false);
 
   const loadPets = useCallback(async (pageNum: number, isInitial: boolean = false) => {
+    if (isFetchingRef.current) return;
+    
     try {
+      isFetchingRef.current = true;
       if (isInitial) {
         setLoading(true);
       } else {
@@ -32,6 +36,7 @@ export const usePets = () => {
     } finally {
       setLoading(false);
       setIsFetchingMore(false);
+      isFetchingRef.current = false;
     }
   }, []);
 
@@ -49,6 +54,7 @@ export const usePets = () => {
 
   return { 
     pets, 
+    setPets,
     loading, 
     isFetchingMore, 
     error, 

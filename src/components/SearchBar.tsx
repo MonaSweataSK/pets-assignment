@@ -15,7 +15,6 @@ const SearchContainer = styled.div`
   justify-content: space-between;
   padding: 16px 48px;
   background-color: ${props => props.theme.colors.lowest};
-  border-bottom: 1px solid ${props => props.theme.colors.container};
   gap: 20px;
 
   @media (max-width: 768px) {
@@ -73,6 +72,7 @@ const SortWrapper = styled.div`
 `;
 
 const sortOptions = [
+  { label: 'Featured (Default)', value: 'none' },
   { label: 'Name A-Z', value: 'name-asc' },
   { label: 'Name Z-A', value: 'name-desc' },
   { label: 'Newest First', value: 'date-newest' },

@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import styled, { keyframes } from 'styled-components';
 import type { Pet } from '../types/Pet';
 import { useSelection } from '../context/SelectionContext';
+
 
 const Grid = styled.div`
   display: grid;
@@ -145,6 +146,24 @@ interface PetCardProps {
   fetchPriority?: 'high' | 'low' | 'auto';
 }
 
+const ImageIcon = () => (
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.2 }}>
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+        <circle cx="8.5" cy="8.5" r="1.5" />
+        <polyline points="21 15 16 10 5 21" />
+    </svg>
+);
+
+const FallbackContainer = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: ${props => props.theme.colors.container};
+    color: ${props => props.theme.colors.onSurfaceVariant};
+`;
+
 const CheckIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="20 6 9 17 4 12" />
@@ -162,17 +181,30 @@ export const PetCard: React.FC<PetCardProps> = ({ pet, petIndex, onOpen, priorit
     else select(pet.url);
   };
 
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggle();
+  };
+
+  const [imgError, setImgError] = React.useState(false);
+
+  // Create a high-performance thumbnail URL for the grid
+  const thumbnailUrl = useMemo(() => {
+    if (imgError) return null;
+    // If it's a Pexels URL, we can use their dynamic transformation API
+    if (pet.url.includes('pexels.com')) {
+      const baseUrl = pet.url.split('?')[0];
+      return `${baseUrl}?auto=format,compress&cs=tinysrgb&dpr=1&w=600&fit=max&q=80`;
+    }
+    return pet.url;
+  }, [pet.url, imgError]);
+
   const handleImageClick = (_e: React.MouseEvent) => {
     if (anySelected) {
       toggle();
     } else {
       onOpen(petIndex);
     }
-  };
-
-  const handleCheckboxClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toggle();
   };
 
   return (
@@ -182,12 +214,19 @@ export const PetCard: React.FC<PetCardProps> = ({ pet, petIndex, onOpen, priorit
         $anySelected={anySelected}
         onClick={handleImageClick}
       >
-        <PetImage
-          src={pet.url}
-          alt={pet.title}
-          loading={priority ? "eager" : "lazy"}
-          fetchPriority={fetchPriority}
-        />
+        {imgError ? (
+            <FallbackContainer>
+                <ImageIcon />
+            </FallbackContainer>
+        ) : (
+            <PetImage
+                src={thumbnailUrl || ''}
+                alt={pet.title}
+                loading={priority ? "eager" : "lazy"}
+                fetchPriority={fetchPriority}
+                onError={() => setImgError(true)}
+            />
+        )}
         <CheckboxWrapper
           className="checkbox-trigger"
           $selected={selected}
@@ -239,15 +278,15 @@ const SkeletonText = styled(SkeletonBase)`
 `;
 
 export const PetCardSkeleton: React.FC = () => {
-    return (
-        <CardContainer>
-            <SkeletonImage />
-            <PetInfo>
-                <SkeletonTitle />
-                <SkeletonText />
-            </PetInfo>
-        </CardContainer>
-    );
+  return (
+    <CardContainer>
+      <SkeletonImage />
+      <PetInfo>
+        <SkeletonTitle />
+        <SkeletonText />
+      </PetInfo>
+    </CardContainer>
+  );
 };
 
 export const PetGrid: React.FC<{ children: React.ReactNode }> = ({ children }) => {
