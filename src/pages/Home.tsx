@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import SearchBar from '../components/SearchBar';
 import SelectionToolbar from '../components/SelectionToolbar';
-import { PetGrid, PetCard } from '../components/PetGrid';
+import { PetGrid, PetCard, PetCardSkeleton } from '../components/PetGrid';
 import { PetDetailModal } from '../components/PetDetailModal';
 
 import Footer from '../components/Footer';
@@ -26,7 +26,7 @@ const MainContent = styled.main`
   flex-direction: column;
 `;
 
-const LoadingOverlay = styled.div`
+const ErrorOverlay = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -34,24 +34,7 @@ const LoadingOverlay = styled.div`
   flex: 1;
   padding: 80px;
   gap: 20px;
-  color: ${props => props.theme.colors.onSurfaceVariant};
-`;
-
-const ErrorOverlay = styled(LoadingOverlay)`
   color: ${props => props.theme.colors.primary};
-`;
-
-const Spinner = styled.div`
-  width: 48px;
-  height: 48px;
-  border: 4px solid ${props => props.theme.colors.container};
-  border-top-color: ${props => props.theme.colors.primary};
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
 `;
 
 const EmptyState = styled.div`
@@ -67,7 +50,7 @@ const EmptyState = styled.div`
 
 const Home: React.FC = () => {
     const { pets, loading, error } = usePets();
-    const { selectedUrls, select, clear, selectAll, clearAll, isSelected } = useSelection();
+    const { selectedUrls, selectAll, clearAll } = useSelection();
     
     const { index } = useParams();
     const navigate = useNavigate();
@@ -189,10 +172,11 @@ const Home: React.FC = () => {
                 )}
 
                 {loading ? (
-                    <LoadingOverlay>
-                        <Spinner />
-                        <p>Curating your gallery...</p>
-                    </LoadingOverlay>
+                    <PetGrid>
+                        {[...Array(8)].map((_, i) => (
+                            <PetCardSkeleton key={i} />
+                        ))}
+                    </PetGrid>
                 ) : error ? (
                     <ErrorOverlay>
                         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

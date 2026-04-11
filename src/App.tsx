@@ -4,9 +4,9 @@ import { theme } from './theme';
 import { GlobalStyles } from './styles/GlobalStyles';
 import Home from './pages/Home';
 import About from './pages/About';
-import Privacy from './pages/Privacy';
-import Terms from './pages/Terms';
-import Contact from './pages/Contact';
+import Privacy from './pages/Privacy.tsx';
+import Terms from './pages/Terms.tsx';
+import Contact from './pages/Contact.tsx';
 import DesignSystem from './pages/DesignSystem';
 import { ToastRenderer } from './ui/Toast/Toast';
 

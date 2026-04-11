@@ -1,7 +1,9 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { Button } from '../ui/Button/Button';
-import pawHeartSvg from '../assets/svg/paw-heart.svg';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 // ─── Styled Components ────────────────────────────────────────────────────────
 
@@ -11,60 +13,7 @@ const PageWrapper = styled.div`
   flex-direction: column;
 `;
 
-const Nav = styled.nav`
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 48px;
-  height: 80px;
-  background-color: rgba(250, 249, 247, 0.8);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-`;
 
-const NavLogo = styled.span`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-family: ${props => props.theme.typography.heading};
-  font-weight: 700;
-  font-size: 20px;
-  color: ${props => props.theme.colors.onSurface};
-`;
-
-const NavLinks = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 32px;
-`;
-
-const NavLinkStyled = styled(Link)<{ $active?: boolean }>`
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
-  color: ${props => props.$active ? props.theme.colors.primary : props.theme.colors.onSurfaceVariant};
-  position: relative;
-  transition: color 0.2s ease;
-  
-  ${props => props.$active && `
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -4px;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background-color: ${props.theme.colors.primary};
-    }
-  `}
-
-  &:hover {
-    color: ${props => props.theme.colors.primary};
-  }
-`;
 
 // ─── Hero Section ─────────────────────────────────────────────────────────────
 
@@ -202,57 +151,7 @@ const CTAHeadline = styled.h2`
 
 // ─── Standard Footer ──────────────────────────────────────────────────────────
 
-const FooterStyled = styled.footer`
-  padding: 80px 48px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  flex-wrap: wrap;
-  gap: 32px;
-  border-top: 1px solid ${props => props.theme.colors.border};
-`;
 
-const FooterBrand = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-const FooterLogoText = styled.span`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: ${props => props.theme.typography.heading};
-  font-weight: 700;
-  font-size: 16px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: ${props => props.theme.colors.onSurface};
-`;
-
-const CopyrightText = styled.span`
-  font-size: 13px;
-  color: ${props => props.theme.colors.outline};
-`;
-
-const FooterNav = styled.nav`
-  display: flex;
-  gap: 32px;
-`;
-
-const FooterLink = styled.a`
-  text-decoration: none;
-  font-size: 12px;
-  font-weight: 700;
-  color: ${props => props.theme.colors.onSurfaceVariant};
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: ${props => props.theme.colors.primary};
-  }
-`;
 
 // ─── SVG Icons ───────────────────────────────────────────────────────────────
 
@@ -340,9 +239,9 @@ const About: React.FC = () => {
 
       <CTAWrapper>
         <CTALayout>
-          <CTAImage 
-            src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=1200" 
-            alt="Artistic portrait of a dog" 
+          <CTAImage
+            src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=1200"
+            alt="Artistic portrait of a dog"
           />
           <CTAContent>
             <CTAHeadline>Explore the Collection</CTAHeadline>

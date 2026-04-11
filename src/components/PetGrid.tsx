@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+
+import styled, { keyframes } from 'styled-components';
 import type { Pet } from '../types/Pet';
 import { useSelection } from '../context/SelectionContext';
 
@@ -110,7 +110,7 @@ const PetInfo = styled.div`
   gap: 4px;
 `;
 
-const PetNameLink = styled(Link)`
+const PetNameLink = styled.div`
   display: inline-block;
   font-size: 18px;
   font-weight: 700;
@@ -162,7 +162,7 @@ export const PetCard: React.FC<PetCardProps> = ({ pet, petIndex, onOpen, priorit
     else select(pet.url);
   };
 
-  const handleImageClick = (e: React.MouseEvent) => {
+  const handleImageClick = (_e: React.MouseEvent) => {
     if (anySelected) {
       toggle();
     } else {
@@ -203,6 +203,51 @@ export const PetCard: React.FC<PetCardProps> = ({ pet, petIndex, onOpen, priorit
       </PetInfo>
     </CardContainer>
   );
+};
+
+
+const shimmer = keyframes`
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+`;
+
+const SkeletonBase = styled.div`
+  background: linear-gradient(90deg, 
+    ${props => props.theme.colors.container} 25%, 
+    ${props => props.theme.colors.border} 37%, 
+    ${props => props.theme.colors.container} 63%
+  );
+  background-size: 200% 100%;
+  animation: ${shimmer} 1.5s infinite;
+`;
+
+const SkeletonImage = styled(SkeletonBase)`
+  aspect-ratio: 1 / 1;
+  border-radius: ${props => props.theme.radius.lg};
+`;
+
+const SkeletonTitle = styled(SkeletonBase)`
+  height: 24px;
+  width: 60%;
+  border-radius: 4px;
+`;
+
+const SkeletonText = styled(SkeletonBase)`
+  height: 16px;
+  width: 90%;
+  border-radius: 4px;
+`;
+
+export const PetCardSkeleton: React.FC = () => {
+    return (
+        <CardContainer>
+            <SkeletonImage />
+            <PetInfo>
+                <SkeletonTitle />
+                <SkeletonText />
+            </PetInfo>
+        </CardContainer>
+    );
 };
 
 export const PetGrid: React.FC<{ children: React.ReactNode }> = ({ children }) => {
