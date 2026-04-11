@@ -316,6 +316,8 @@ const Home: React.FC = () => {
                         {selectedPetIndex !== null && filteredAndSortedPets[selectedPetIndex] && (
                             <PetDetailModal 
                                 pet={filteredAndSortedPets[selectedPetIndex]}
+                                nextPet={selectedPetIndex < filteredAndSortedPets.length - 1 ? filteredAndSortedPets[selectedPetIndex + 1] : undefined}
+                                prevPet={selectedPetIndex > 0 ? filteredAndSortedPets[selectedPetIndex - 1] : undefined}
                                 currentIndex={selectedPetIndex}
                                 totalCount={filteredAndSortedPets.length}
                                 onClose={handleClosePet}

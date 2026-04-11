@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import styled, { keyframes, createGlobalStyle } from 'styled-components';
 import { downloadSelectedImages } from '../utils/downloadImages';
 import { useToast } from '../ui/Toast/Toast';
@@ -21,6 +21,11 @@ const fadeIn = keyframes`
 const slideUp = keyframes`
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+`;
+
+const spin = keyframes`
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 `;
 
 /* ─── Styled Components ─────────────────────────────────────────────────── */
@@ -106,14 +111,33 @@ const ImageContainer = styled.div<{ $isZoomed: boolean }>`
   cursor: ${props => props.$isZoomed ? 'zoom-out' : 'zoom-in'};
 `;
 
-const ZoomableImage = styled.img<{ $isZoomed: boolean }>`
+const ZoomableImage = styled.img<{ $isZoomed: boolean; $isVisible: boolean }>`
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transition: transform 0.3s cubic-bezier(0.2, 1, 0.3, 1);
+  opacity: ${props => props.$isVisible ? 1 : 0};
+  transition: transform 0.3s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.3s ease;
   transform: ${props => props.$isZoomed ? 'scale(2)' : 'scale(1)'};
   transform-origin: center;
   display: block;
+`;
+
+const ImageLoader = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+`;
+
+const Spinner = styled.div`
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(164, 55, 0, 0.1);
+  border-left-color: ${props => props.theme.colors.primary};
+  border-radius: 50%;
+  animation: ${spin} 1s linear infinite;
 `;
 
 const InfoPanel = styled.div`
@@ -214,6 +238,8 @@ const CounterBadge = styled.div`
 /* ─── Main Component ─────────────────────────────────────────────────────────── */
 interface PetDetailModalProps {
   pet: Pet;
+  nextPet?: Pet;
+  prevPet?: Pet;
   currentIndex: number;
   totalCount: number;
   onClose: () => void;
@@ -223,6 +249,8 @@ interface PetDetailModalProps {
 
 export const PetDetailModal: React.FC<PetDetailModalProps> = ({ 
   pet, 
+  nextPet,
+  prevPet,
   currentIndex, 
   totalCount, 
   onClose, 
@@ -232,6 +260,8 @@ export const PetDetailModal: React.FC<PetDetailModalProps> = ({
   const { showToast } = useToast();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(true);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   // Transform optimized WebP into high-res JPEG
   const highResUrl = useMemo(() => {
@@ -248,6 +278,34 @@ export const PetDetailModal: React.FC<PetDetailModalProps> = ({
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [onClose, onPrev, onNext]);
+
+  // Reset loading state when pet changes
+  useEffect(() => {
+    // If the image is already in cache and complete, don't show the loader
+    if (imgRef.current?.complete) {
+      setIsImageLoading(false);
+    } else {
+      setIsImageLoading(true);
+    }
+  }, [pet.url]);
+
+  // High-performance Neighbor Prefetching
+  useEffect(() => {
+    const urlsToPrefetch = [];
+    if (nextPet) {
+        const url = nextPet.url.split('?')[0];
+        urlsToPrefetch.push(`${url}?auto=compress&cs=tinysrgb&w=2400&dpr=2&fm=jpg`);
+    }
+    if (prevPet) {
+        const url = prevPet.url.split('?')[0];
+        urlsToPrefetch.push(`${url}?auto=compress&cs=tinysrgb&w=2400&dpr=2&fm=jpg`);
+    }
+
+    urlsToPrefetch.forEach(url => {
+        const img = new Image();
+        img.src = url;
+    });
+  }, [nextPet, prevPet]);
 
   const handleDownload = async (params: string) => {
     try {
@@ -284,10 +342,20 @@ export const PetDetailModal: React.FC<PetDetailModalProps> = ({
         <ContentBody>
           <ImageContainer $isZoomed={isZoomed} onClick={() => setIsZoomed(!isZoomed)}>
             <CounterBadge>{currentIndex + 1} / {totalCount}</CounterBadge>
+            
+            {isImageLoading && (
+                <ImageLoader>
+                    <Spinner />
+                </ImageLoader>
+            )}
+
             <ZoomableImage 
+              ref={imgRef}
               src={highResUrl} 
               alt={pet.title} 
               $isZoomed={isZoomed}
+              $isVisible={!isImageLoading}
+              onLoad={() => setIsImageLoading(false)}
             />
           </ImageContainer>
 
