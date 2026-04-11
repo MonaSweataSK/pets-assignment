@@ -3,7 +3,11 @@ const downloadImage = async (url: string): Promise<void> => {
   const blob = await response.blob();
   const objectUrl = URL.createObjectURL(blob);
 
-  const filename = url.split('/').pop() || 'image';
+  let filename = url.split('/').pop() || 'image';
+  filename = filename.split('?')[0];
+  if (!filename.includes('.')) {
+    filename += '.jpg';
+  }
 
   const anchor = document.createElement('a');
   anchor.href = objectUrl;

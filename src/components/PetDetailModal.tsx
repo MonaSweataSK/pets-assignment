@@ -3,6 +3,7 @@ import styled, { keyframes, createGlobalStyle } from 'styled-components';
 import { downloadSelectedImages } from '../utils/downloadImages';
 import { useToast } from '../ui/Toast/Toast';
 import type { Pet } from '../types/Pet';
+import { DownloadDropdown } from './DownloadDropdown';
 
 /* ─── Global Styles ─────────────────────────────────────────────────────── */
 const ModalGlobalStyle = createGlobalStyle`
@@ -162,29 +163,7 @@ const Actions = styled.div`
   padding-top: 24px;
 `;
 
-const DownloadButton = styled.button<{ $loading?: boolean }>`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 16px;
-  border-radius: 16px;
-  border: none;
-  background: linear-gradient(135deg, ${props => props.theme.colors.primary}, ${props => props.theme.colors.primaryContainer});
-  color: white;
-  font-weight: 700;
-  font-size: 16px;
-  cursor: ${props => props.$loading ? 'wait' : 'pointer'};
-  box-shadow: 0 8px 10px rgba(164, 55, 0, 0.2);
-  transition: all 0.2s ease;
 
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 24px rgba(164, 55, 0, 0.25);
-  }
-  &:disabled { opacity: 0.7; }
-`;
 
 const NavArrow = styled.button<{ $side: 'left' | 'right' }>`
   position: fixed;
@@ -270,10 +249,12 @@ export const PetDetailModal: React.FC<PetDetailModalProps> = ({
     return () => window.removeEventListener('keydown', handleKey);
   }, [onClose, onPrev, onNext]);
 
-  const handleDownload = async () => {
+  const handleDownload = async (params: string) => {
     try {
       setIsDownloading(true);
-      await downloadSelectedImages([highResUrl]);
+      const baseUrl = pet.url.split('?')[0];
+      const finalUrl = `${baseUrl}${params}`;
+      await downloadSelectedImages([finalUrl]);
       showToast('Image downloaded!', { type: 'success' });
     } catch (err) {
       showToast('Download failed', { type: 'error' });
@@ -319,14 +300,10 @@ export const PetDetailModal: React.FC<PetDetailModalProps> = ({
             <Description>{pet.description}</Description>
 
             <Actions>
-              <DownloadButton onClick={handleDownload} disabled={isDownloading} $loading={isDownloading}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
-                  <polyline points="7 10 12 15 17 10"></polyline>
-                  <line x1="12" y1="15" x2="12" y2="3"></line>
-                </svg>
-                {isDownloading ? 'Processing...' : 'Download Image'}
-              </DownloadButton>
+              <DownloadDropdown 
+                onDownload={handleDownload} 
+                isDownloading={isDownloading} 
+              />
             </Actions>
           </InfoPanel>
         </ContentBody>
