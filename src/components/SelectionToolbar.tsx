@@ -35,7 +35,7 @@ const SelectionToolbar: React.FC<SelectionToolbarProps> = ({
   isDownloading = false
 }) => {
     return (
-        <Toolbar>
+        <Toolbar isFixed>
             <ToolbarGroup style={{ gap: '24px' }}>
                 <SelectionCount>
                   {selectedCount} item{selectedCount !== 1 ? 's' : ''} selected
