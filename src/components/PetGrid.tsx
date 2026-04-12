@@ -179,8 +179,6 @@ const CheckIcon = () => (
 
 export const PetCard: React.FC<PetCardProps> = ({ pet, petIndex, onOpen, priority, fetchPriority }) => {
   const { selectedUrls, isSelected, select, clear } = useSelection();
-  const [longPressTriggered, setLongPressTriggered] = React.useState(false);
-  const timerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const selected = isSelected(pet.url);
   const anySelected = selectedUrls.size > 0;
@@ -188,22 +186,6 @@ export const PetCard: React.FC<PetCardProps> = ({ pet, petIndex, onOpen, priorit
   const toggle = () => {
     if (selected) clear(pet.url);
     else select(pet.url);
-  };
-
-  const startLongPress = () => {
-    setLongPressTriggered(false);
-    timerRef.current = setTimeout(() => {
-      toggle();
-      setLongPressTriggered(true);
-      if (window.navigator.vibrate) window.navigator.vibrate(50);
-    }, 600);
-  };
-
-  const endLongPress = () => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
   };
 
   const handleCheckboxClick = (e: React.MouseEvent) => {
@@ -225,17 +207,7 @@ export const PetCard: React.FC<PetCardProps> = ({ pet, petIndex, onOpen, priorit
   }, [pet.url, imgError]);
 
   const handleImageClick = (_e: React.MouseEvent) => {
-    // If a long press was just triggered, we don't want to open the modal
-    if (longPressTriggered) {
-        setLongPressTriggered(false);
-        return;
-    }
-
-    if (anySelected) {
-      toggle();
-    } else {
-      onOpen(petIndex);
-    }
+    onOpen(petIndex);
   };
 
   return (
@@ -244,9 +216,6 @@ export const PetCard: React.FC<PetCardProps> = ({ pet, petIndex, onOpen, priorit
         $selected={selected}
         $anySelected={anySelected}
         onClick={handleImageClick}
-        onTouchStart={startLongPress}
-        onTouchEnd={endLongPress}
-        onTouchMove={endLongPress}
       >
         {imgError ? (
             <FallbackContainer>

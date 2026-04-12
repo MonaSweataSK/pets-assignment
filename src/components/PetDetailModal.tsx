@@ -148,6 +148,7 @@ const InfoPanel = styled.div`
   background-color: ${props => props.theme.colors.surface};
   overflow-y: auto;
   position: relative;
+  z-index: 10;
 
   @media (max-width: 640px) { padding: 32px 24px; }
 `;
@@ -221,19 +222,7 @@ const NavArrow = styled.button<{ $side: 'left' | 'right' }>`
   }
 `;
 
-const CounterBadge = styled.div`
-  position: absolute;
-  top: 24px;
-  left: 24px;
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(8px);
-  color: white;
-  padding: 6px 14px;
-  border-radius: 99px;
-  font-size: 12px;
-  font-weight: 700;
-  z-index: 10;
-`;
+
 
 /* ─── Main Component ─────────────────────────────────────────────────────────── */
 interface PetDetailModalProps {
@@ -341,8 +330,6 @@ export const PetDetailModal: React.FC<PetDetailModalProps> = ({
 
         <ContentBody>
           <ImageContainer $isZoomed={isZoomed} onClick={() => setIsZoomed(!isZoomed)}>
-            <CounterBadge>{currentIndex + 1} / {totalCount}</CounterBadge>
-            
             {isImageLoading && (
                 <ImageLoader>
                     <Spinner />

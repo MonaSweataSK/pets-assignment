@@ -102,6 +102,13 @@ const Home: React.FC = () => {
     const [sortOrder, setSortOrder] = useState('none');
     const [isDownloading, setIsDownloading] = useState(false);
 
+    // Auto-scroll to top when sorting changes to help user see new results
+    useEffect(() => {
+        if (sortOrder !== 'none') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [sortOrder]);
+
     const { showToast } = useToast();
 
     // The core architectural switch: Infinite vs Sorted
@@ -185,6 +192,7 @@ const Home: React.FC = () => {
             const urls = Array.from(selectedUrls);
             await downloadSelectedImages(urls);
             showToast(`Successfully downloaded ${urls.length} images`, { type: 'success', duration: 3000 });
+            clearAll(); // Clear selection after processing
         } catch (err) {
             console.error('Download failed:', err);
             showToast('Some images failed to download. Please check your browser settings.', { type: 'error', duration: 5000 });
@@ -328,7 +336,7 @@ const Home: React.FC = () => {
                     </>
                 )}
             </MainContent>
-            <Footer />
+            {isSortedMode && <Footer />}
         </PageWrapper>
     );
 };
