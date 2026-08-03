@@ -1,6 +1,6 @@
 =>Third pary packages
 
-react-router-dom - to navigate to baout page and to each pet page
+react-router-dom - to navigate to about page and to each pet page
 styled-components
 
 =>Interfaces
